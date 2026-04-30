@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Analiza — Job Screener{% endblock %}
+{% block title %}Analyze — Job Screener{% endblock %}
 
 {% block content %}
-<div class="page-title">Analiza oferty</div>
-<p class="page-sub">Podaj link i/lub treść ogłoszenia. Oba pola są zapisywane do bazy.</p>
+<div class="page-title">Analyze a listing</div>
+<p class="page-sub">Provide a URL and/or job description text. Both are saved to the database.</p>
 
 <!-- Job detail modal -->
 <div id="job-modal" class="modal-overlay" style="display:none;">
@@ -19,31 +19,31 @@
 </div>
 
 {% if not has_api_key %}
-<div class="notice warn">⚠ Brak klucza API. Skontaktuj się z administratorem aplikacji.</div>
+<div class="notice warn">⚠ No API key. Contact the application administrator.</div>
 {% endif %}
 {% if not has_cv %}
-<div class="notice">Nie masz jeszcze CV w profilu. <a href="{{ url_for('settings') }}" class="link-accent">Uzupełnij w Ustawieniach →</a></div>
+<div class="notice">No CV in your profile yet. <a href="{{ url_for('settings') }}" class="link-accent">Add it in Settings →</a></div>
 {% endif %}
 
 <div class="card card-mb">
   <div class="card-body">
     <div class="field">
-      <label>Link do ogłoszenia</label>
+      <label>Job listing URL</label>
       <input type="url" id="input-url" placeholder="https://www.linkedin.com/jobs/view/...">
     </div>
     <div class="field">
-      <label>Treść ogłoszenia</label>
-      <textarea id="input-text" rows="8" placeholder="Wklej treść ogłoszenia — wymagane gdy link jest niedostępny (LinkedIn, Indeed itp.)"></textarea>
+      <label>Job description text</label>
+      <textarea id="input-text" rows="8" placeholder="Paste the job description — required when the link is inaccessible (LinkedIn, Indeed, etc.)"></textarea>
     </div>
     <button class="btn btn-primary" id="analyze-btn" onclick="runAnalysis()" {% if not has_api_key %}disabled{% endif %}>
-      Analizuj ogłoszenie →
+      Analyze listing →
     </button>
   </div>
 </div>
 
 <div id="source-status" class="source-status"></div>
 <div id="loading" class="notice" style="display:none;">
-  <span class="spinner"></span> Analizuję — może potrwać 20–40 sekund…
+  <span class="spinner"></span> Analyzing — may take 20–40 seconds…
 </div>
 <div id="error-box" style="display:none;" class="notice warn"></div>
 <div id="result-box"></div>
@@ -72,10 +72,10 @@
       <tr class="clickable{% if row_cls %} {{ row_cls }}{% endif %}" data-job-id="{{ j.id }}" onclick="openModal({{ j.id }})">
         <td class="td-date">{{ j.analyzed_at }}</td>
         <td class="td-role">{{ j.role or '—' }}</td>
-        <td class="fw-500">{{ j.company or 'Nieznana' }}</td>
-        <td>{%- if j.company_rejected %}<span class="badge badge-company_rejected" data-verdict="{{ j.verdict }}">Odmowa</span>
-            {%- elif j.applied %}<span class="badge badge-applied" data-verdict="{{ j.verdict }}">Zgłoszono</span>
-            {%- else %}<span class="badge badge-{{ j.verdict }}" data-verdict="{{ j.verdict }}">{{ {'rejected':'Odrzucona','warning':'Wymaga uwagi','worth_considering':'Do rozważenia'}.get(j.verdict, j.verdict) }}</span>{% endif %}</td>
+        <td class="fw-500">{{ j.company or 'Unknown' }}</td>
+        <td>{%- if j.company_rejected %}<span class="badge badge-company_rejected" data-verdict="{{ j.verdict }}">Rejected by company</span>
+            {%- elif j.applied %}<span class="badge badge-applied" data-verdict="{{ j.verdict }}">Applied</span>
+            {%- else %}<span class="badge badge-{{ j.verdict }}" data-verdict="{{ j.verdict }}">{{ {'rejected':'Rejected','warning':'Needs review','worth_considering':'Worth considering'}.get(j.verdict, j.verdict) }}</span>{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -91,9 +91,9 @@
 
 {% block scripts %}
 <script>
-const vLabel = v => ({rejected:'Odrzucona', warning:'Wymaga uwagi', worth_considering:'Do rozważenia'}[v]||v);
+const vLabel = v => ({rejected:'Rejected', warning:'Needs review', worth_considering:'Worth considering'}[v]||v);
 const sClass = s => ({ok:'ok', warning:'warning', flag:'flag'}[s]||'unknown');
-const sLabel = s => ({ok:'Bez zastrzeżeń', warning:'Wymaga uwagi', flag:'Czerwona flaga'}[s]||'—');
+const sLabel = s => ({ok:'No issues', warning:'Needs review', flag:'Red flag'}[s]||'—');
 
 let openLayers = {};
 function toggleLayer(id) {
@@ -150,8 +150,8 @@ function renderResult(r, jobId, sourceUrl, sourceText) {
         <span class="chev" id="lc-src-new">▶</span>
       </div>
       <div class="layer-body" id="lb-src-new">
-        ${sourceUrl ? `<div class="source-url-label">Link</div><a href="${sourceUrl}" target="_blank" class="source-url-link">${sourceUrl}</a>` : ''}
-        ${sourceText ? `<div class="source-url-label" class="${sourceUrl?'source-preview-label-gap':''}">Treść</div><div class="source-text" class="source-preview-text">${sourceText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+        ${sourceUrl ? `<div class="source-url-label">URL</div><a href="${sourceUrl}" target="_blank" class="source-url-link">${sourceUrl}</a>` : ''}
+        ${sourceText ? `<div class="source-url-label" class="${sourceUrl?'source-preview-label-gap':''}">Text</div><div class="source-text" class="source-preview-text">${sourceText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
       </div>
     </div>`;
 
@@ -161,21 +161,21 @@ function renderResult(r, jobId, sourceUrl, sourceText) {
       <div class="card-header-body">
         <div class="card-title">${r.company_name||'—'} — ${r.role_title||'—'}</div>
         <div class="card-sub">${r.verdict_summary||''}</div>
-        ${r.zero_list_hit ? `<div class="card-meta" text-red">⛔ Lista zero: ${r.zero_list_reason}</div>` : ''}
+        ${r.zero_list_hit ? `<div class="card-meta" text-red">⛔ Zero list: ${r.zero_list_reason}</div>` : ''}
       </div>
       <div class="verdict-select-wrap">
-        <label class="verdict-select-label">Werdykt:</label>
+        <label class="verdict-select-label">Status:</label>
         <select class="verdict-select" onchange="setVerdictInline(this.value)">
           ${verdictOpts}
         </select>
       </div>
     </div>
     ${mkLayer('triage','Triage', r.triage?.status, r.triage?.findings)}
-    ${mkLayer('prod','Warstwa produktowa', l.product?.status, l.product?.findings)}
-    ${mkLayer('biz','Warstwa biznesowa', l.business?.status, l.business?.findings)}
-    ${mkLayer('rep','Warstwa reputacyjna', l.reputation?.status, l.reputation?.findings)}
-    ${mkLayer('val','Warstwa wartości', l.values?.status, l.values?.findings)}
-    ${mkLayer('fit','Dopasowanie kompetencyjne', fit.status, fitFindings)}
+    ${mkLayer('prod','Product layer', l.product?.status, l.product?.findings)}
+    ${mkLayer('biz','Business layer', l.business?.status, l.business?.findings)}
+    ${mkLayer('rep','Reputation layer', l.reputation?.status, l.reputation?.findings)}
+    ${mkLayer('val','Values layer', l.values?.status, l.values?.findings)}
+    ${mkLayer('fit','Skills fit', fit.status, fitFindings)}
     ${mkLayer('gut','Gut feeling', 'unknown', r.gut_feeling)}
     ${sourceHtml}
   </div>`;
@@ -186,7 +186,7 @@ let currentJobId = null;
 async function setVerdictInline(value) {
   if (!currentJobId) return;
   const badge = document.getElementById('result-badge');
-  const labels = {rejected:'Odrzucona', rejected_soft:'Odrzucona', warning:'Wymaga uwagi', worth_considering:'Do rozważenia', applied:'Zgłoszono'};
+  const labels = {rejected:'Rejected', rejected_soft:'Rejected', warning:'Needs review', worth_considering:'Worth considering', applied:'Applied'};
   const badgeClass = {applied:'applied'};
   try {
     const fd = new FormData();
@@ -208,16 +208,16 @@ async function setVerdictInline(value) {
 }
 
 const SCRAPE_ERRORS = {
-  timeout:  { title: 'Serwer nie odpowiedział', fallback: true },
-  notfound: { title: 'Ogłoszenie nie istnieje (404)', fallback: false },
-  blocked:  { title: 'Treść niedostępna', fallback: true },
-  network:  { title: 'Błąd sieci', fallback: true },
+  timeout:  { title: 'Server did not respond', fallback: true },
+  notfound: { title: 'Listing not found (404)', fallback: false },
+  blocked:  { title: 'Content inaccessible', fallback: true },
+  network:  { title: 'Network error', fallback: true },
 };
 
 async function runAnalysis(force = false) {
   const url = document.getElementById('input-url').value.trim();
   const text = document.getElementById('input-text').value.trim();
-  if (!url && !text) { alert('Podaj link lub treść ogłoszenia.'); return; }
+  if (!url && !text) { alert('Provide a URL or job description text.'); return; }
 
   const statusEl = document.getElementById('source-status');
 
@@ -231,11 +231,11 @@ async function runAnalysis(force = false) {
     if (chkData.exists) {
       statusEl.className = 'source-status notice warn';
       statusEl.style.display = 'block';
-      statusEl.textContent = `⚠ To ogłoszenie było już analizowane (${chkData.analyzed_at}). Analiza zostanie mimo to uruchomiona.`;
+      statusEl.textContent = `⚠ This listing was already analyzed (${chkData.analyzed_at}). Analysis will run again.`;
     } else {
       statusEl.className = 'source-status notice ok';
       statusEl.style.display = 'block';
-      statusEl.textContent = '✓ Nowe ogłoszenie — nie istnieje jeszcze w bazie.';
+      statusEl.textContent = '✓ New listing — not yet in the database.';
     }
   } catch(e) { statusEl.style.display = 'none'; }
 
@@ -256,10 +256,10 @@ async function runAnalysis(force = false) {
     statusEl.style.display = 'none';
 
     if (data.scrape_error) {
-      const info = SCRAPE_ERRORS[data.error_code] || {title:'Błąd', fallback:true};
+      const info = SCRAPE_ERRORS[data.error_code] || {title:'Error', fallback:true};
       document.getElementById('error-box').innerHTML =
         `<strong>${info.title}</strong><br>${data.error_detail || ''}` +
-        (info.fallback ? '<br><br>Wklej treść ogłoszenia w polu powyżej i spróbuj ponownie.' : '');
+        (info.fallback ? '<br><br>Paste the job description in the text field above and try again.' : '');
       document.getElementById('error-box').style.display = 'block';
       if (info.fallback) document.getElementById('input-text').focus();
       document.getElementById('analyze-btn').disabled = false;
@@ -270,19 +270,19 @@ async function runAnalysis(force = false) {
       const p = data.previous;
       document.getElementById('result-box').innerHTML = `
         <div class="notice warn duplicate-notice">
-          <div class="td-mono" duplicate-label">⚠ To ogłoszenie było już analizowane</div>
+          <div class="td-mono" duplicate-label">⚠ This listing was already analyzed</div>
           <div duplicate-title">${p.company||'—'} — ${p.role||'—'}</div>
           <div class="td-mono duplicate-meta">
             Analizowano: ${p.analyzed_at} &nbsp;·&nbsp; <span class="badge badge-${p.verdict}">${vLabel(p.verdict)}</span>
           </div>
           <div class="duplicate-actions">
-            <a href="/job/${p.id}" class="btn btn-secondary btn-sm">Zobacz poprzednią analizę →</a>
-            <button class="btn btn-secondary btn-sm" onclick="runAnalysis(true)">Analizuj ponownie</button>
+            <a href="/job/${p.id}" class="btn btn-secondary btn-sm">View previous analysis →</a>
+            <button class="btn btn-secondary btn-sm" onclick="runAnalysis(true)">Analyze again</button>
           </div>
         </div>`;
       document.getElementById('result-box').scrollIntoView({behavior:'smooth', block:'nearest'});
     } else if (data.error) {
-      document.getElementById('error-box').textContent = 'Błąd: ' + data.error;
+      document.getElementById('error-box').textContent = 'Error: ' + data.error;
       document.getElementById('error-box').style.display = 'block';
     } else {
       // fetch job_id of the newly saved record
@@ -299,7 +299,7 @@ async function runAnalysis(force = false) {
     }
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('error-box').textContent = 'Błąd połączenia: ' + e.message;
+    document.getElementById('error-box').textContent = 'Connection error: ' + e.message;
     document.getElementById('error-box').style.display = 'block';
   }
   document.getElementById('analyze-btn').disabled = false;
@@ -352,14 +352,14 @@ async function navigateModal(delta) {
 
 async function loadModalJob(jobId) {
   const body = document.getElementById('modal-body');
-  body.innerHTML = '<div class="modal-loading">Ładowanie…</div>';
+  body.innerHTML = '<div class="modal-loading">Loading…</div>';
   try {
     const resp = await fetch(`/job/${jobId}/partial`);
-    if (!resp.ok) { body.innerHTML = '<div class="modal-loading">Błąd ładowania.</div>'; return; }
+    if (!resp.ok) { body.innerHTML = '<div class="modal-loading">Loading error.</div>'; return; }
     body.innerHTML = await resp.text();
     body.scrollTop = 0;
   } catch(e) {
-    body.innerHTML = '<div class="modal-loading">Błąd połączenia.</div>';
+    body.innerHTML = '<div class="modal-loading">Connection error.</div>';
   }
 }
 
@@ -419,12 +419,12 @@ function updateTableRow(jobId, status, verdict) {
   const badge = row.querySelector('.badge');
   if (badge) {
     if (status === 'applied') {
-      badge.className = 'badge badge-applied'; badge.textContent = 'Zgłoszono';
+      badge.className = 'badge badge-applied'; badge.textContent = 'Applied';
     } else if (status === 'company_rejected') {
-      badge.className = 'badge badge-company_rejected'; badge.textContent = 'Odmowa';
+      badge.className = 'badge badge-company_rejected'; badge.textContent = 'Rejected by company';
     } else {
       badge.className = `badge badge-${verdict}`;
-      badge.textContent = {rejected:'Odrzucona', warning:'Wymaga uwagi', worth_considering:'Do rozważenia'}[verdict] || verdict;
+      badge.textContent = {rejected:'Rejected', warning:'Needs review', worth_considering:'Worth considering'}[verdict] || verdict;
     }
     badge.dataset.verdict = verdict;
   }
@@ -470,7 +470,7 @@ async function setStatus(status) {
 }
 
 async function confirmDelete() {
-  if (!confirm('Usunąć tę analizę z bazy? Tej operacji nie można cofnąć.')) return;
+  if (!confirm('Delete this analysis? This action cannot be undone.')) return;
   const jobId = getCurrentJobId();
   try {
     const resp = await fetch(`/job/${jobId}/delete`, { method: 'POST' });
@@ -482,30 +482,30 @@ async function confirmDelete() {
       JOB_IDS.splice(modalIdx, 1);
       if (modalIdx >= JOB_IDS.length) modalIdx = JOB_IDS.length - 1;
     } else {
-      alert('Błąd: ' + (data.error || 'nieznany'));
+      alert('Error: ' + (data.error || 'unknown'));
     }
-  } catch(e) { alert('Błąd połączenia: ' + e.message); }
+  } catch(e) { alert('Connection error: ' + e.message); }
 }
 
 async function reanalyze() {
   const jobId = getCurrentJobId();
   const btn = document.getElementById('reanalyze-btn');
   const statusEl = document.getElementById('reanalyze-status');
-  if (btn) { btn.disabled = true; btn.textContent = 'Analizuję…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Analyzing…'; }
   if (statusEl) { statusEl.style.display = 'none'; statusEl.className = 'notice'; }
   try {
     const resp = await fetch(`/reanalyze/${jobId}`, { method: 'POST' });
     const data = await resp.json();
     if (data.ok) {
-      if (statusEl) { statusEl.style.display='block'; statusEl.textContent='Analiza zakończona. Przekierowuję…'; }
+      if (statusEl) { statusEl.style.display='block'; statusEl.textContent='Analysis complete. Redirecting…'; }
       setTimeout(() => { window.location.href = '/job/' + data.new_job_id; }, 1200);
     } else {
-      if (statusEl) { statusEl.style.display='block'; statusEl.className='notice warn'; statusEl.textContent='Błąd: '+(data.error||'nieznany'); }
-      if (btn) { btn.disabled=false; btn.textContent='Analizuj ponownie'; }
+      if (statusEl) { statusEl.style.display='block'; statusEl.className='notice warn'; statusEl.textContent='Error: '+(data.error||'unknown'); }
+      if (btn) { btn.disabled=false; btn.textContent='Re-analyze'; }
     }
   } catch(e) {
-    if (statusEl) { statusEl.style.display='block'; statusEl.className='notice warn'; statusEl.textContent='Błąd połączenia: '+e.message; }
-    if (btn) { btn.disabled=false; btn.textContent='Analizuj ponownie'; }
+    if (statusEl) { statusEl.style.display='block'; statusEl.className='notice warn'; statusEl.textContent='Connection error: '+e.message; }
+    if (btn) { btn.disabled=false; btn.textContent='Re-analyze'; }
   }
 }
 
@@ -520,7 +520,7 @@ async function saveUrl() {
   const statusEl = document.getElementById('url-status');
   const url = urlInput ? urlInput.value.trim() : '';
   if (!url.startsWith('http')) {
-    if (statusEl) { statusEl.style.color='#e74c3c'; statusEl.style.display='block'; statusEl.textContent='Podaj prawidłowy URL.'; }
+    if (statusEl) { statusEl.style.color='#e74c3c'; statusEl.style.display='block'; statusEl.textContent='Please enter a valid URL.'; }
     return;
   }
   try {
@@ -529,13 +529,13 @@ async function saveUrl() {
     const resp = await fetch(`/job/${jobId}/url`, { method: 'POST', body: fd });
     const data = await resp.json();
     if (data.ok) {
-      if (statusEl) { statusEl.style.color='#3dba73'; statusEl.style.display='block'; statusEl.textContent='Link zapisany.'; }
+      if (statusEl) { statusEl.style.color='#3dba73'; statusEl.style.display='block'; statusEl.textContent='URL saved.'; }
       setTimeout(() => loadModalJob(jobId), 900);
     } else {
-      if (statusEl) { statusEl.style.color='#e74c3c'; statusEl.style.display='block'; statusEl.textContent=data.error||'Błąd zapisu.'; }
+      if (statusEl) { statusEl.style.color='#e74c3c'; statusEl.style.display='block'; statusEl.textContent=data.error||'Save error.'; }
     }
   } catch(e) {
-    if (statusEl) { statusEl.style.color='#e74c3c'; statusEl.style.display='block'; statusEl.textContent='Błąd połączenia.'; }
+    if (statusEl) { statusEl.style.color='#e74c3c'; statusEl.style.display='block'; statusEl.textContent='Connection error.'; }
   }
 }
 </script>
