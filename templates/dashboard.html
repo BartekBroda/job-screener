@@ -158,6 +158,7 @@ function renderResult(r, jobId, sourceUrl, sourceText) {
   return `<div class="card" style="animation: fadeIn 0.3s ease;">
     <div class="card-header">
       <span class="badge badge-${r.verdict}" id="result-badge">${vLabel(r.verdict)}</span>
+      ${r.triage?.role_archetype ? `<span class="badge badge-archetype">${r.triage.role_archetype}</span>` : ''}
       <div class="card-header-body">
         <div class="card-title">${r.company_name||'—'} — ${r.role_title||'—'}</div>
         <div class="card-sub">${r.verdict_summary||''}</div>

@@ -92,6 +92,7 @@ textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
 .badge-worth_considering { color: var(--blue); border-color: var(--blue); }
 .badge-applied { color: #3dba73; border-color: var(--green); }
 .badge-company_rejected { color: #e07840; border-color: #e07840; }
+.badge-archetype { border-color: var(--border); color: var(--muted); text-transform: uppercase; font-size: var(--fs-2xs); letter-spacing: 0.06em; }
 
 /* ── status dots ────────────────────────────────────────────────────────── */
 .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }

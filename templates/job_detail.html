@@ -46,6 +46,7 @@
     {%- if job.company_rejected %}<span class="badge badge-company_rejected" data-verdict="{{ job.verdict }}">Rejected by company</span>
     {%- elif job.applied %}<span class="badge badge-applied" data-verdict="{{ job.verdict }}">Applied</span>
     {%- else %}<span class="badge badge-{{ job.verdict }}" data-verdict="{{ job.verdict }}">{{ vl.get(job.verdict, job.verdict) }}</span>{% endif %}
+    {% if job.role_archetype %}<span class="badge badge-archetype">{{ job.role_archetype }}</span>{% endif %}
     <div class="card-title">{{ job.role or '—' }}</div>
     <div class="card-company">{{ job.company or 'Unknown' }}</div>
     {% if job.verdict_summary %}<div class="card-sub">{{ job.verdict_summary }}</div>{% endif %}
@@ -109,16 +110,16 @@
       <div class="layer-left">
         <div class="dot dot-{{ sc.get(job.fit_status,'unknown') }}"></div>
         <div>
-          <div class="layer-name">Dopasowanie kompetencyjne</div>
-          <div class="layer-status-label">{{ sl.get(job.fit_status,'—') }}</div>
+          <div class="layer-name">Skills fit</div>
+          <div class="layer-status-label">{{ sl.get(job.fit_status,'—') }}{% if job.fit_score %} · <strong>{{ "%.1f"|format(job.fit_score) }}/5</strong>{% endif %}</div>
         </div>
       </div>
       <span class="chev" id="lc-fit">▶</span>
     </div>
     <div class="layer-body" id="lb-fit">
-      {% if job.fit_strengths %}<strong>Mocne:</strong> {{ job.fit_strengths }}<br><br>{% endif %}
-      {% if job.fit_gaps %}<strong>Luki:</strong> {{ job.fit_gaps }}<br><br>{% endif %}
-      {% if job.fit_improve %}<strong>Do wzmocnienia:</strong> {{ job.fit_improve }}{% endif %}
+      {% if job.fit_strengths %}<strong>Strengths:</strong> {{ job.fit_strengths }}<br><br>{% endif %}
+      {% if job.fit_gaps %}<strong>Gaps:</strong> {{ job.fit_gaps }}<br><br>{% endif %}
+      {% if job.fit_improve %}<strong>To strengthen:</strong> {{ job.fit_improve }}{% endif %}
     </div>
   </div>
 
