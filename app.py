@@ -85,7 +85,7 @@ def login() -> str:
         if user and verify_password(password, user["password_hash"]):
             session["user_id"] = user["id"]
             return redirect(url_for("dashboard"))
-        flash("Nieprawidłowy login lub hasło.")
+        flash("Invalid username or password.")
     return render_template("login.html")
 
 
@@ -105,7 +105,7 @@ def register() -> str:
         allow = True
 
     if not allow:
-        flash("Rejestracja jest wyłączona. Skontaktuj się z administratorem.")
+        flash("Registration is disabled. Contact the administrator.")
         return redirect(url_for("login"))
 
     if request.method == "POST":
@@ -113,17 +113,17 @@ def register() -> str:
         password = request.form.get("password", "")
         password2 = request.form.get("password2", "")
         if not username or not password:
-            flash("Wypełnij wszystkie pola.")
+            flash("Please fill in all fields.")
         elif password != password2:
-            flash("Hasła nie są identyczne.")
+            flash("Passwords do not match.")
         elif len(password) < 6:
-            flash("Hasło musi mieć co najmniej 6 znaków.")
+            flash("Password must be at least 6 characters.")
         elif not create_user(username, password):
-            flash("Ta nazwa użytkownika jest już zajęta.")
+            flash("That username is already taken.")
         else:
             user = get_user(username)
             session["user_id"] = user["id"]
-            flash("Konto zostało utworzone. Uzupełnij swój profil w Ustawieniach.")
+            flash("Account created. Complete your profile in Settings.")
             return redirect(url_for("settings"))
     return render_template("register.html", token=token_from_url)
 
@@ -404,7 +404,7 @@ def job_detail(job_id):
     user = current_user()
     job = get_job(job_id, user["id"])
     if not job:
-        flash("Analiza nie istnieje.")
+        flash("Analysis not found.")
         return redirect(url_for("history"))
     raw = {}
     try:
@@ -439,7 +439,7 @@ def settings():
         yellow_list = request.form.get("yellow_list", "")
         criteria = request.form.get("criteria", "")
         update_user_profile(user["id"], cv, zero_list, criteria, yellow_list)
-        flash("Profil zapisany.")
+        flash("Profile saved.")
         return redirect(url_for("settings"))
     return render_template("settings.html", user=current_user())
 

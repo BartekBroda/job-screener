@@ -44,9 +44,23 @@ DODATKOWE KRYTERIA I PRIORYTETY
 ══════════════════════════════════════════════════
 WARSTWY ANALIZY (wykonaj zawsze wszystkie)
 ══════════════════════════════════════════════════
-1. TRIAGE - dopasowanie roli do profilu i trajektorii (nie tylko do CV), sygnały AI/eco/wellbeing-washing, ukryty pracodawca
+1. TRIAGE - dopasowanie roli do profilu i trajektorii (nie tylko do CV), sygnały AI/eco/wellbeing-washing, ukryty pracodawca.
+   Dodatkowo oceń LEGITYMIZACJĘ ogłoszenia (ghost job risk). Sygnały do sprawdzenia:
+   - Wiek ogłoszenia i wzorzec repostowania (wielokrotne odświeżanie = podejrzane)
+   - Brak konkretnej nazwy zespołu, managera lub procesu rekrutacji
+   - Treść JD ogólna bez technicznych detali specyficznych dla tej roli
+   - "Apply now" ale brak aktywnego procesu / ogłoszenie bez daty / dziesiątki podobnych ogłoszeń tej firmy jednocześnie
+   - Sygnały zamrożenia zatrudnienia: ostatnie zwolnienia, brak nowych wdrożeń, ogłoszenie "na wszelki wypadek"
+   Ocena: ghost_job_risk "low" = konkretne ogłoszenie z detalami; "medium" = kilka sygnałów; "high" = multiple czerwone flagi
+   Określ ARCHETYPE roli: engineering|pm|design|data|devrel|leadership|operations|sales|other
+   Bazuj na tytule stanowiska i wymaganiach JD, nie na deklarowanej "misji".
 2. PRODUKTOWA - weryfikowalność claims, w HealthTech: certyfikaty i peer-review, AI-washing, szara strefa regulacyjna
-3. BIZNESOWA - model przychodowy vs deklarowana misja, struktura finansowania, presja VC/PE, PE roll-up playbook
+3. BIZNESOWA - model przychodowy vs deklarowana misja, struktura finansowania, presja VC/PE, PE roll-up playbook.
+   Dodatkowo oceń SYGNAŁY KOMPENSACYJNE z treści ogłoszenia:
+   - Czy podany zakres wynagrodzenia? Jeśli tak — oceń vs rynkowe stawki dla tej roli i lokalizacji
+   - "Competitive salary" bez konkretu = sygnał niskiego widełkowego transparentności
+   - Rażąca dysproporcja: wymagania seniorskie + wynagrodzenie juniora
+   compensation_signal: "disclosed_above_market"|"disclosed_market"|"disclosed_below_market"|"undisclosed"|"unknown"
 4. REPUTACYJNA - aktywnie korzystaj z wiedzy treningowej o firmie, nie ograniczaj się do treści ogłoszenia:
    - Glassdoor/Indeed/Blind: aktualna ocena I TREND (rosnący/malejący), dominujące tematy w negatywnych recenzjach pracowników (micromanagement? toxic culture? work-life balance? brak transparentności?)
    - C-level: poprzednie stanowiska i wyniki tych firm, publicznie znane decyzje, kontrowersje, styl zarządzania
@@ -54,7 +68,11 @@ WARSTWY ANALIZY (wykonaj zawsze wszystkie)
    - Media i regulacje: negatywna prasa, dochodzenia, skargi regulacyjne, whistleblowing
    - Jeśli firma mało znana lub nowy startup - jawnie zaznacz brak danych reputacyjnych zamiast pomijać warstwę
 5. WARTOŚCI - spójność misji z modelem, pułapka impact (misja jako waluta emocjonalna), dostępność vs deklaracje
-6. DOPASOWANIE - mocne strony kandydata vs wymagania, luki, co wzmocnić w aplikacji
+6. DOPASOWANIE - mocne strony kandydata vs wymagania, luki, co wzmocnić w aplikacji.
+   Dodatkowo przyznaj score: liczba 1.0–5.0 (jeden decimal).
+   5.0 = idealne dopasowanie CV do JD bez luk. 1.0 = brak dopasowania.
+   4.5+ = aplikuj od razu. 4.0–4.4 = dobre dopasowanie. 3.5–3.9 = warunkowe. Poniżej 3.5 = odradzam.
+   Score musi być spójny z gaps i verdict — nie przyznawaj 4.5 przy liście istotnych luk.
 
 ══════════════════════════════════════════════════
 ZASADA DOWODU - obowiązuje przy każdej fladze i odrzuceniu
@@ -86,7 +104,10 @@ FORMAT - WYŁĄCZNIE ten JSON, nic więcej
   "triage": {{
     "status": "ok|warning|flag",
     "findings": "Obserwacje - dopasowanie roli do profilu i trajektorii, pierwsze sygnały",
-    "evidence": "Cytat lub fakt z ogłoszenia - wymagany gdy status=flag, null w pozostałych przypadkach"
+    "evidence": "Cytat lub fakt z ogłoszenia - wymagany gdy status=flag, null w pozostałych przypadkach",
+    "ghost_job_risk": "low|medium|high",
+    "ghost_job_signals": "Konkretne sygnały uzasadniające ghost_job_risk lub null jeśli low",
+    "role_archetype": "engineering|pm|design|data|devrel|leadership|operations|sales|other"
   }},
   "layers": {{
     "product": {{
@@ -97,7 +118,9 @@ FORMAT - WYŁĄCZNIE ten JSON, nic więcej
     "business": {{
       "status": "ok|warning|flag",
       "findings": "Model biznesowy, finansowanie, inwestorzy",
-      "evidence": "Cytat lub fakt z ogłoszenia - wymagany gdy status=flag, null w pozostałych przypadkach"
+      "evidence": "Cytat lub fakt z ogłoszenia - wymagany gdy status=flag, null w pozostałych przypadkach",
+      "compensation_signal": "disclosed_above_market|disclosed_market|disclosed_below_market|undisclosed|unknown",
+      "compensation_note": "Konkretna notatka np. '15-20k PLN gross, rynkowo 18-24k dla tego poziomu' lub null
     }},
     "reputation": {{
       "status": "ok|warning|flag",
@@ -112,6 +135,7 @@ FORMAT - WYŁĄCZNIE ten JSON, nic więcej
   }},
   "fit": {{
     "status": "ok|warning|flag",
+    "score": 3.5,
     "strengths": "Co z profilu kandydata pasuje do tej roli",
     "gaps": "Czego brakuje lub co jest niedopasowane",
     "improve": "Co podkreślić/uzupełnić w aplikacji jeśli warto aplikować"
