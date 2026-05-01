@@ -16,7 +16,7 @@ from database import (
     init_db, get_user, create_user, get_user_by_id,
     update_user_profile, save_job, get_jobs, get_job,
     export_csv, user_count, check_duplicate, update_verdict, update_job_url, delete_job, update_applied,
-    update_company_rejected, update_job_status, verify_password
+    update_company_rejected, update_job_status, verify_password, get_analytics
 )
 from analyzer import analyze
 from scraper import fetch as scrape_url, normalize_url
@@ -455,6 +455,15 @@ def export():
         f"attachment; filename=oferty_{user['username']}.csv"
     return resp
 
+
+
+
+@app.route("/analytics")
+@login_required
+def analytics():
+    user = current_user()
+    data = get_analytics(user["id"])
+    return render_template("analytics.html", user=user, data=data)
 
 # ── startup ──────────────────────────────────────────────────────────────────
 
