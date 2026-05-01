@@ -350,3 +350,105 @@ footer a:hover { color: var(--muted); }
 [data-theme="light"] .btn-primary           { background: #111111; color: #ffffff; }
 [data-theme="light"] .btn-primary:hover     { background: #333333; }
 [data-theme="light"] .card                  { box-shadow: rgba(0,0,0,0.06) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px; }
+
+/* ── analytics ───────────────────────────────────────────────── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+}
+
+.stat-card-label {
+  font-family: var(--fm);
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.stat-card-value {
+  font-family: var(--fd);
+  font-size: var(--fs-3xl);
+  font-weight: 200;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.stat-card-sub {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-label {
+  font-family: var(--fm);
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  width: 140px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-track {
+  flex: 1;
+  background: var(--border);
+  border-radius: 3px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.bar-fill.bar-ok       { background: #3dba73; }
+.bar-fill.bar-warning  { background: #c9a96e; }
+.bar-fill.bar-flag     { background: #e74c3c; }
+.bar-fill.bar-worth    { background: #4a9eff; }
+.bar-fill.bar-neutral  { background: var(--muted); }
+
+.bar-count {
+  font-family: var(--fm);
+  font-size: var(--fs-xs);
+  color: var(--dim);
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.analytics-section-title {
+  font-family: var(--fd);
+  font-size: var(--fs-lg);
+  font-weight: 200;
+  color: var(--text);
+  margin: 32px 0 16px;
+}
+
+[data-theme="light"] .bar-track { background: var(--border-light); }
