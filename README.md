@@ -28,7 +28,7 @@ uv sync
 bash server.sh start
 ```
 
-The browser will open automatically at `http://localhost:5000`.
+Open `http://localhost:5001` (or the port set in `config.env`).
 
 ---
 
@@ -93,7 +93,7 @@ https://your.domain.com/register?token=YOUR_TOKEN
 | `ANTHROPIC_API_KEY` | Anthropic API key (required) |
 | `SECRET_KEY` | Flask session key (change on the server) |
 | `INVITE_TOKEN` | Invitation token for new users |
-| `PORT` | Application port (default: `5000`) |
+| `PORT` | Application port (default: `5001`) |
 
 ---
 
@@ -104,6 +104,7 @@ https://your.domain.com/register?token=YOUR_TOKEN
 - **Detail modal** — clicking a row in history or dashboard opens the details in place; ← → navigation between listings, URL reflects the currently viewed listing
 - **Verdicts and states** — worth considering / needs review / rejected (AI) / rejected (confirmed); mark submitted applications
 - **Analysis history** — table with visual category filtering, CSV export from Settings
+- **Analytics dashboard** — aggregated statistics: verdict distribution, application funnel, per-layer flag counts, fit score averages
 - **Light/dark mode** — toggle in navigation, preference saved in the browser
 - **Multi-user** — each user has a separate profile, lists, and history
 
