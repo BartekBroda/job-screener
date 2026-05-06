@@ -4,6 +4,15 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.10.1 — Gunicorn stability fixes
+
+- `init_db()` moved to module level — migrations now run when gunicorn imports `app:app` (previously only ran in `__main__`, so new columns like `role_archetype` were missing in production)
+- Gunicorn worker timeout raised to 180s — prevents workers being killed mid-analysis (default 30s was shorter than the 120s API timeout)
+- `login_required` returns JSON 401 for XHR requests instead of an HTML redirect — prevents "Unexpected token '<'" JSON parse errors in the browser when a session expires
+- Global `fetch` wrapper in `base.html` adds `X-Requested-With: XMLHttpRequest` header and redirects to `/login` on 401 — no per-call handling needed
+
+---
+
 ## v0.10 — Full UI translation to English
 
 - All Polish text translated to English across every file: templates, Python backend, system prompt, error messages, docstrings, inline comments

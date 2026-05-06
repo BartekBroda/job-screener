@@ -44,6 +44,27 @@
 {% block scripts %}{% endblock %}
 <script>
   (function(){
+    var _fetch = window.fetch;
+    window.fetch = function(url, opts) {
+      opts = opts || {};
+      opts.headers = opts.headers || {};
+      if (typeof opts.headers.set === 'function') {
+        opts.headers.set('X-Requested-With', 'XMLHttpRequest');
+      } else {
+        opts.headers['X-Requested-With'] = 'XMLHttpRequest';
+      }
+      return _fetch(url, opts).then(function(resp) {
+        if (resp.status === 401) {
+          window.location.href = '/login';
+          return new Promise(function() {});
+        }
+        return resp;
+      });
+    };
+  })();
+</script>
+<script>
+  (function(){
     var btn = document.getElementById('theme-toggle');
     if (!btn) return;
     function applyTheme(t) {

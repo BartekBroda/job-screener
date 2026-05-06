@@ -28,6 +28,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 API_KEY: str = os.environ.get("ANTHROPIC_API_KEY", "")
 
+init_db()
 
 # ── auth helpers ────────────────────────────────────────────────────────────
 
@@ -47,6 +48,9 @@ def login_required(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         if not session.get("user_id"):
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest" or \
+               request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
+                return jsonify({"error": "Session expired. Please log in again."}), 401
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return decorated

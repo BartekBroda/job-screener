@@ -32,8 +32,8 @@ uv add package-name        # add a new dependency
 uv sync                    # recreate the environment (e.g. after cloning)
 ```
 
-`server.sh start` launches gunicorn with 2 workers as a daemon; logs in `/tmp/screener-access.log`
-and `/tmp/screener-error.log`. PID saved in `/tmp/screener.pid`.
+`server.sh start` launches gunicorn with 2 workers, 180s worker timeout, as a daemon; logs in `/tmp/screener-access.log`
+and `/tmp/screener-error.log`. PID saved in `/tmp/screener.pid`. Timeout must exceed the 120s Anthropic API timeout.
 
 `uv.lock` is committed to Git — guarantees identical versions across all environments.
 `.venv/` is ignored by Git — uv creates it locally automatically.
@@ -111,6 +111,7 @@ raw_json                — full JSON response from the model
 `init_db()` runs `ALTER TABLE RENAME COLUMN` for columns with old Polish names and
 `ALTER TABLE ADD COLUMN` for missing columns on every startup.
 Safe for existing databases — idempotent, does not delete data.
+Called at module level in `app.py` (not just in `__main__`) so gunicorn workers run migrations on import.
 
 ### Key database.py functions
 ```python

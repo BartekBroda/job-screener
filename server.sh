@@ -17,6 +17,7 @@ _start() {
   uv run gunicorn -w 2 -b "0.0.0.0:${PORT:-5000}" app:app \
     --daemon \
     --pid "$PID_FILE" \
+    --timeout 180 \
     --access-logfile /tmp/screener-access.log \
     --error-logfile /tmp/screener-error.log
 
