@@ -4,6 +4,19 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.12 — History table redesign
+
+- Rebuilt from 12 columns to 7: Date, Role, Company, Verdict, L0, Layers, Fit
+- Classification badge always single-line; "Rejected by company" fits without wrapping
+- Six analysis-layer dots collapsed into one compact dot strip with hover tooltips (Triage · Product · Business · Reputation · Values)
+- Fit score surfaced as its own column (`X.X/5`, colour-coded by fit status)
+- Status column removed (badge already encodes applied/company-rejected state)
+- Filter bar and table header sticky on scroll — both remain visible on long lists
+- "Show all" filter button resets all category filters at once
+- History page no longer constrained to 1280px container — table uses full viewport width
+
+---
+
 ## v0.11 — Background analysis with persistent banner
 
 - Analysis runs in a background thread — user can navigate away immediately after submitting
