@@ -31,7 +31,7 @@
 {% endif %}
 <div id="analysis-banner" class="analysis-banner" role="status" aria-live="polite"></div>
 
-<div class="container">
+<div class="{% block container_class %}container{% endblock %}">
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       {% for msg in messages %}
