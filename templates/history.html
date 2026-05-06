@@ -279,12 +279,14 @@ async function reanalyze() {
   try {
     const resp = await fetch(`/reanalyze/${jobId}`, { method: 'POST' });
     const data = await resp.json();
-    if (data.ok) {
-      if (statusEl) { statusEl.style.display='block'; statusEl.textContent='Analysis complete. Redirecting…'; }
-      setTimeout(() => { window.location.href = '/job/' + data.new_job_id; }, 1200);
-    } else {
-      if (statusEl) { statusEl.style.display='block'; statusEl.className='notice warn'; statusEl.textContent='Error: '+(data.error||'unknown'); }
-      if (btn) { btn.disabled=false; btn.textContent='Re-analyze'; }
+    if (data.analysis_id) {
+      const active = { id: data.analysis_id, source_label: 'Re-analysis' };
+      localStorage.setItem('activeAnalysis', JSON.stringify(active));
+      window.dispatchEvent(new CustomEvent('analysisStarted', { detail: active }));
+      if (statusEl) statusEl.style.display = 'none';
+      if (btn) { btn.disabled = false; btn.textContent = 'Re-analyze'; }
+    } else if (data.error) {
+      if (statusEl) { statusEl.textContent = data.error; statusEl.style.display = 'block'; }
     }
   } catch(e) {
     if (statusEl) { statusEl.style.display='block'; statusEl.className='notice warn'; statusEl.textContent='Connection error: '+e.message; }

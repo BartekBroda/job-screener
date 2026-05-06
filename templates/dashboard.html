@@ -282,21 +282,21 @@ async function runAnalysis(force = false) {
           </div>
         </div>`;
       document.getElementById('result-box').scrollIntoView({behavior:'smooth', block:'nearest'});
+    } else if (data.analysis_id) {
+      document.getElementById('loading').style.display = 'none';
+      statusEl.style.display = 'none';
+      document.getElementById('result-box').innerHTML =
+        '<div class="notice ok">Analysis started — you can navigate away. ' +
+        'The banner above will update when done.</div>';
+      var active = {
+        id: data.analysis_id,
+        source_label: url || (text || '').slice(0, 60).replace(/\n/g, ' ')
+      };
+      localStorage.setItem('activeAnalysis', JSON.stringify(active));
+      window.dispatchEvent(new CustomEvent('analysisStarted', { detail: active }));
     } else if (data.error) {
       document.getElementById('error-box').textContent = 'Error: ' + data.error;
       document.getElementById('error-box').style.display = 'block';
-    } else {
-      // fetch job_id of the newly saved record
-      currentJobId = null;
-      try {
-        const hjResp = await fetch('/history_latest');
-        const hjData = await hjResp.json();
-        currentJobId = hjData.id || null;
-      } catch(e) {}
-      document.getElementById('result-box').innerHTML = renderResult(
-        data.result, currentJobId, data.source_url, data.source_text
-      );
-      document.getElementById('result-box').scrollIntoView({behavior:'smooth', block:'nearest'});
     }
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
@@ -497,12 +497,14 @@ async function reanalyze() {
   try {
     const resp = await fetch(`/reanalyze/${jobId}`, { method: 'POST' });
     const data = await resp.json();
-    if (data.ok) {
-      if (statusEl) { statusEl.style.display='block'; statusEl.textContent='Analysis complete. Redirecting…'; }
-      setTimeout(() => { window.location.href = '/job/' + data.new_job_id; }, 1200);
-    } else {
-      if (statusEl) { statusEl.style.display='block'; statusEl.className='notice warn'; statusEl.textContent='Error: '+(data.error||'unknown'); }
-      if (btn) { btn.disabled=false; btn.textContent='Re-analyze'; }
+    if (data.analysis_id) {
+      const active = { id: data.analysis_id, source_label: 'Re-analysis' };
+      localStorage.setItem('activeAnalysis', JSON.stringify(active));
+      window.dispatchEvent(new CustomEvent('analysisStarted', { detail: active }));
+      if (statusEl) statusEl.style.display = 'none';
+      if (btn) { btn.disabled = false; btn.textContent = 'Re-analyze'; }
+    } else if (data.error) {
+      if (statusEl) { statusEl.textContent = data.error; statusEl.style.display = 'block'; }
     }
   } catch(e) {
     if (statusEl) { statusEl.style.display='block'; statusEl.className='notice warn'; statusEl.textContent='Connection error: '+e.message; }
