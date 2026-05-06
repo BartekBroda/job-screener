@@ -304,16 +304,15 @@ def reanalyze(job_id):
             })
     else:
         input_text = saved_text or source
-    try:
-        result = analyze(user, input_text, "text", API_KEY)
-        save_job(user["id"], result, source_url=saved_url, source_text=input_text)
-        # return the new entry's id
-        new_job = get_jobs(user["id"], limit=1)[0]
-        return jsonify({"ok": True, "new_job_id": new_job["id"]})
-    except sqlite3.IntegrityError as e:
-        return jsonify({"error": f"Database integrity error: {e}"}), 500
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    source_label = saved_url or (saved_text or "")[:60].replace("\n", " ") or "Re-analysis"
+    analysis_id = create_analysis(user["id"], source_label)
+    t = threading.Thread(
+        target=_run_analysis_bg,
+        args=(analysis_id, {k: user[k] for k in user.keys()}, input_text, saved_url),
+        daemon=True,
+    )
+    t.start()
+    return jsonify({"analysis_id": analysis_id})
 
 
 @app.route("/job/<int:job_id>/verdict", methods=["POST"])
