@@ -169,7 +169,6 @@ def _run_analysis_bg(
     user: dict,
     input_text: str,
     url: str,
-    scraped: bool,
 ) -> None:
     try:
         update_analysis_status(analysis_id, "running")
@@ -177,7 +176,10 @@ def _run_analysis_bg(
         job_id = save_job(user["id"], result, source_url=url, source_text=input_text)
         update_analysis_status(analysis_id, "done", result_job_id=job_id)
     except Exception as e:
-        update_analysis_status(analysis_id, "error", error=str(e))
+        try:
+            update_analysis_status(analysis_id, "error", error=str(e))
+        except Exception:
+            app.logger.exception("Failed to persist error status for analysis %s", analysis_id)
 
 
 @app.route("/analyze", methods=["POST"])
@@ -233,7 +235,7 @@ def run_analyze():
     analysis_id = create_analysis(user["id"], source_label)
     t = threading.Thread(
         target=_run_analysis_bg,
-        args=(analysis_id, {k: user[k] for k in user.keys()}, input_text, url, scraped),
+        args=(analysis_id, {k: user[k] for k in user.keys()}, input_text, url),
         daemon=True,
     )
     t.start()
