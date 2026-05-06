@@ -4,6 +4,7 @@ import hashlib
 import secrets
 import json as _json
 import datetime
+import uuid
 import csv
 import io
 from pathlib import Path
@@ -54,6 +55,18 @@ CREATE TABLE IF NOT EXISTS jobs (
     gut_feeling TEXT,
     source TEXT,
     raw_json TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS analyses (
+    id TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    source_label TEXT,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    finished_at TIMESTAMP,
+    result_job_id INTEGER,
+    error TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 """
@@ -188,6 +201,15 @@ def init_db() -> None:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_analyzed_at ON jobs(analyzed_at)")
         except Exception:
             pass
+
+        try:
+            conn.execute(
+                """UPDATE analyses SET status='error', error='Server restarted'
+                   WHERE status IN ('pending', 'running')
+                   AND started_at < datetime('now', '-5 minutes')"""
+            )
+        except Exception:
+            pass  # analyses table may not exist in very old DBs yet
 
 
 def hash_password(password: str) -> str:
@@ -331,12 +353,57 @@ def check_duplicate(user_id: int, source: str) -> Optional[sqlite3.Row]:
     return dict(row) if row else None
 
 
+def create_analysis(user_id: int, source_label: str) -> str:
+    analysis_id = str(uuid.uuid4())
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO analyses (id, user_id, status, source_label) VALUES (?, ?, 'pending', ?)",
+            (analysis_id, user_id, source_label),
+        )
+    return analysis_id
+
+
+def update_analysis_status(
+    analysis_id: str,
+    status: str,
+    result_job_id: int = None,
+    error: str = None,
+) -> None:
+    with get_conn() as conn:
+        if status == "done":
+            conn.execute(
+                "UPDATE analyses SET status=?, result_job_id=?, finished_at=datetime('now') WHERE id=?",
+                (status, result_job_id, analysis_id),
+            )
+        elif status == "error":
+            conn.execute(
+                "UPDATE analyses SET status=?, error=?, finished_at=datetime('now') WHERE id=?",
+                (status, error, analysis_id),
+            )
+        else:
+            conn.execute(
+                "UPDATE analyses SET status=? WHERE id=?",
+                (status, analysis_id),
+            )
+
+
+def get_analysis(analysis_id: str, user_id: int) -> Optional[sqlite3.Row]:
+    with get_conn() as conn:
+        return conn.execute(
+            """SELECT a.*, j.company, j.role, j.verdict
+               FROM analyses a
+               LEFT JOIN jobs j ON j.id = a.result_job_id
+               WHERE a.id = ? AND a.user_id = ?""",
+            (analysis_id, user_id),
+        ).fetchone()
+
+
 def save_job(
     user_id: int,
     result: AnalysisResult,
     source_url: str = "",
     source_text: str = ""
-) -> None:
+) -> int:
     """
     Save an analysis result to the database.
 
@@ -413,6 +480,7 @@ def save_job(
             ))
         except sqlite3.IntegrityError as e:
             raise Exception(f"Database integrity error: {e}")
+        return conn.execute("SELECT last_insert_rowid()").fetchone()[0]
 
 
 def get_jobs(user_id: int, limit: int = 100) -> list[dict]:
