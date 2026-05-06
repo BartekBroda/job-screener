@@ -80,7 +80,13 @@
     banner.onclick = function () {
       localStorage.removeItem('activeAnalysis');
       if (timer) clearInterval(timer);
-      window.location.href = '/job/' + d.result_job_id;
+      banner.className = 'analysis-banner';
+      banner.innerHTML = '';
+      if (typeof openModal === 'function') {
+        openModal(d.result_job_id);
+      } else {
+        window.location.href = '/history?job=' + d.result_job_id;
+      }
     };
   }
 
