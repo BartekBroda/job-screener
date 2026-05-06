@@ -158,6 +158,7 @@ GET      /dashboard
 POST     /analyze               — url + text (both optional, at least one required)
 POST     /check_source          — url or text, checks for duplicate
 POST     /reanalyze/<id>
+GET      /analysis_status/<id>    — background analysis status poll (pending/running/done/error)
 GET      /history_latest        — returns {id} of the most recent entry
 GET      /history
 GET      /job/<id>

@@ -4,6 +4,17 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.11 — Background analysis with persistent banner
+
+- Analysis runs in a background thread — user can navigate away immediately after submitting
+- New `analyses` table tracks job lifecycle: `pending → running → done / error`
+- Persistent banner below nav shows progress on every page: spinner + source label + pulsing dots while running; green clickable strip with company and verdict when done; red dismissible strip on error
+- Stuck analyses from killed workers auto-cleaned on startup after 5 minutes
+- New `GET /analysis_status/<id>` polling endpoint
+- `/reanalyze/<id>` also runs asynchronously
+
+---
+
 ## v0.10.1 — Gunicorn stability fixes
 
 - `init_db()` moved to module level — migrations now run when gunicorn imports `app:app` (previously only ran in `__main__`, so new columns like `role_archetype` were missing in production)
