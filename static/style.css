@@ -610,12 +610,10 @@ footer a:hover { color: var(--muted); }
 }
 .reality-check-divider { border-top: 1px solid var(--border); margin: 10px 0; }
 .reality-check-callout {
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   font-size: var(--fs-sm);
+  line-height: 1.55;
 }
-.reality-check-phrase { font-style: italic; color: var(--dim); flex: 0 1 auto; min-width: 0; overflow-wrap: break-word; }
-.reality-check-arrow  { color: var(--green); flex-shrink: 0; }
-.reality-check-plain  { color: var(--muted); flex: 1 1 0; min-width: 0; overflow-wrap: break-word; }
+.reality-check-phrase { font-style: italic; color: var(--dim); }
+.reality-check-arrow  { color: var(--green); margin: 0 4px; }
+.reality-check-plain  { color: var(--muted); }
