@@ -4,6 +4,15 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.15 — About page
+
+- New `/about` route (no login required) with project philosophy, six-layer descriptions, reality check explanation, all six verdicts/states, and inline changelog
+- README expanded with "The idea" and "How the analysis works" sections covering layers, verdicts, and reality check
+- "About" link added to nav; footer "Changelog" link replaced with "About"
+- `_md_to_html()` refactored to module level with `skip_h1` parameter; reused by both `/changelog` and `/about`; when embedding in About, strips the preamble (h1 + intro paragraph) before the first `---` separator
+
+---
+
 ## v0.14.1 — Rename Analytics → Statistics
 
 - Nav link, page title, and browser tab renamed from "Analytics" to "Statistics"

@@ -382,15 +382,19 @@ def _md_to_html(text: str, skip_h1: bool = False) -> str:
     lines = text.split("\n")
     out = []
     in_ul = False
+    past_preamble = not skip_h1
     for line in lines:
         line_esc = _html.escape(line)
+        if not past_preamble:
+            if re.match(r"^-{3,}$", line_esc.strip()):
+                past_preamble = True
+            continue
         if line_esc.startswith("## "):
             if in_ul: out.append("</ul>"); in_ul = False
             out.append(f"<h2>{line_esc[3:]}</h2>")
         elif line_esc.startswith("# "):
             if in_ul: out.append("</ul>"); in_ul = False
-            if not skip_h1:
-                out.append(f"<h1>{line_esc[2:]}</h1>")
+            out.append(f"<h1>{line_esc[2:]}</h1>")
         elif re.match(r"^-{3,}$", line_esc.strip()):
             if in_ul: out.append("</ul>"); in_ul = False
             out.append("<hr>")
