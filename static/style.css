@@ -587,3 +587,35 @@ footer a:hover { color: var(--muted); }
 .collapsible-meta { font-size: var(--fs-xs); color: var(--dim); }
 .collapsible-arrow { font-family: var(--fm); font-size: var(--fs-2xs); color: var(--dim); }
 .collapsible-body { padding: 14px 16px; }
+
+/* ── reality check ──────────────────────────────────────────────────────── */
+.reality-check-card {
+  border-left: 3px solid var(--green);
+  background: var(--green-bg);
+  padding: 12px 12px 8px;
+  margin-bottom: 8px;
+}
+.reality-check-label {
+  font-family: var(--fm);
+  font-size: var(--fs-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+.reality-check-summary {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  line-height: 1.65;
+}
+.reality-check-divider { border-top: 1px solid var(--border); margin: 10px 0; }
+.reality-check-callout {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 5px;
+  font-size: var(--fs-sm);
+}
+.reality-check-phrase { font-style: italic; color: var(--dim); flex-shrink: 0; }
+.reality-check-arrow  { color: var(--green); flex-shrink: 0; }
+.reality-check-plain  { color: var(--muted); }
