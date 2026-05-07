@@ -31,31 +31,13 @@ def test_reality_check_instruction_before_format():
 
 
 import json
-import pathlib
 import pytest
-import database
-from tests.conftest import _db_path as _SHARED_DB_PATH
-
-_SHARED_DB = pathlib.Path(_SHARED_DB_PATH)
-
-
-@pytest.fixture(autouse=True)
-def restore_db_path():
-    """Restore the shared test DB path before each test.
-
-    test_database.py changes database.DB_PATH to a temp directory and never
-    restores it.  This fixture ensures the shared DB path is active for every
-    test in this module so that both _insert_job() and Flask's login check
-    operate on the same database.
-    """
-    database.DB_PATH = _SHARED_DB
-    yield
-    database.DB_PATH = _SHARED_DB
+from database import get_conn
 
 
 def _insert_job(raw_dict):
     """Insert a minimal job row into the shared test DB and return its id."""
-    with database.get_conn() as conn:
+    with get_conn() as conn:
         conn.execute(
             "INSERT INTO jobs (user_id, company, role, verdict, verdict_confirmed, raw_json) "
             "VALUES (1, 'Acme', 'Test Role', 'worth_considering', 1, ?)",
@@ -104,3 +86,19 @@ def test_partial_renders_summary_only_when_callouts_empty(logged_in_client, app)
     assert "Reality check" in html
     assert "Clear job description, no decoding needed." in html
     assert "reality-check-divider" not in html
+
+
+def test_detail_renders_reality_check_when_present(logged_in_client, app):
+    rc = {
+        "summary": "Detail page check.",
+        "callouts": [
+            {"phrase": "synergy-driven", "plain": "nobody knows what this means"},
+        ],
+    }
+    job_id = _insert_job({"reality_check": rc, "triage": {}, "layers": {}, "fit": {}})
+    resp = logged_in_client.get(f"/job/{job_id}")
+    assert resp.status_code == 200
+    html = resp.data.decode()
+    assert "Reality check" in html
+    assert "reality-check-card" in html
+    assert "synergy-driven" in html

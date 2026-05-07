@@ -2,7 +2,16 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tempfile
 from pathlib import Path
+import pytest
 import database
+
+
+@pytest.fixture(autouse=True)
+def _restore_db_path():
+    original = database.DB_PATH
+    yield
+    database.DB_PATH = original
+
 
 def _seed_db(tmp_path):
     database.DB_PATH = Path(tmp_path) / "test.db"
