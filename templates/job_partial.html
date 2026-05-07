@@ -67,18 +67,23 @@
   {% set rc = raw.get('reality_check') %}
   {% if rc %}
   <div class="reality-check-card">
-    <div class="reality-check-label">Reality check</div>
-    <div class="reality-check-summary">{{ rc.summary }}</div>
-    {% if rc.callouts %}
-    <div class="reality-check-divider"></div>
-    {% for item in rc.callouts %}
-    <div class="reality-check-callout">
-      <span class="reality-check-phrase">"{{ item.phrase }}"</span>
-      <span class="reality-check-arrow">→</span>
-      <span class="reality-check-plain">{{ item.plain }}</span>
+    <div class="reality-check-hdr" onclick="tog('rc')">
+      <div class="reality-check-label">Reality check</div>
+      <span class="chev" id="lc-rc">▶</span>
     </div>
-    {% endfor %}
-    {% endif %}
+    <div class="layer-body reality-check-body" id="lb-rc">
+      <div class="reality-check-summary">{{ rc.summary }}</div>
+      {% if rc.callouts %}
+      <div class="reality-check-divider"></div>
+      {% for item in rc.callouts %}
+      <div class="reality-check-callout">
+        <span class="reality-check-phrase">"{{ item.phrase }}"</span>
+        <span class="reality-check-arrow">→</span>
+        <span class="reality-check-plain">{{ item.plain }}</span>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
   </div>
   {% endif %}
 

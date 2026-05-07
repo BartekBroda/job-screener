@@ -591,17 +591,26 @@ footer a:hover { color: var(--muted); }
 /* ── reality check ──────────────────────────────────────────────────────── */
 .reality-check-card {
   background: var(--green-bg);
-  padding: 16px 28px;
   border-top: 1px solid var(--border);
 }
+.reality-check-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+.reality-check-hdr:hover { background: var(--hover-overlay); }
 .reality-check-label {
   font-family: var(--fm);
   font-size: var(--fs-2xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--green);
-  margin-bottom: 8px;
 }
+.reality-check-body { padding: 0 28px 16px; }
 .reality-check-summary {
   font-size: var(--fs-md);
   color: var(--muted);
