@@ -24,7 +24,13 @@ from analyzer import analyze
 from scraper import fetch as scrape_url, normalize_url
 
 app: Flask = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", os.urandom(32))
+_secret_key = os.environ.get("SECRET_KEY")
+if not _secret_key:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not set. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+app.secret_key = _secret_key
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 API_KEY: str = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -517,7 +523,7 @@ def statistics():
 if __name__ == "__main__":
     init_db()
     port = int(os.environ.get("PORT", 5000))
-    debug = os.environ.get("FLASK_DEBUG", "1") == "1"
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
 
     if not os.environ.get("NO_BROWSER"):
         def open_browser():
