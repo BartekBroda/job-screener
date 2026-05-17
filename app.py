@@ -15,6 +15,8 @@ from flask import (
     session, jsonify, make_response, flash
 )
 from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from database import (
     init_db, get_user, create_user, get_user_by_id,
     update_user_profile, save_job, get_jobs, get_job,
@@ -35,6 +37,12 @@ if not _secret_key:
 app.secret_key = _secret_key
 app.config["WTF_CSRF_SECRET_KEY"] = _secret_key
 csrf = CSRFProtect(app)
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=[],
+    storage_uri="memory://",
+)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 API_KEY: str = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -117,6 +125,7 @@ def index() -> str:
 
 
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per 5 minutes")
 def login() -> str:
     """
     Login page.
@@ -149,6 +158,7 @@ def login() -> str:
 
 
 @app.route("/register", methods=["GET", "POST"])
+@limiter.limit("3 per hour")
 def register() -> str:
     """
     Registration page.
@@ -236,6 +246,7 @@ def _run_analysis_bg(
 
 
 @app.route("/analyze", methods=["POST"])
+@limiter.limit("20 per hour")
 @login_required
 def run_analyze():
     user = current_user()

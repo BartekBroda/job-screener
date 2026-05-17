@@ -20,6 +20,7 @@ from app import app as flask_app
 @pytest.fixture(scope="session")
 def app():
     flask_app.config.update({"TESTING": True, "WTF_CSRF_ENABLED": False})
+    _app_module.limiter.enabled = False
     _app_module.API_KEY = "test-api-key"
     from database import init_db
     init_db()

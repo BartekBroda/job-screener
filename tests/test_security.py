@@ -68,3 +68,33 @@ def test_csrf_rejects_post_without_token(app, client):
         assert resp.status_code == 400
     finally:
         app.config["WTF_CSRF_ENABLED"] = False
+
+
+def test_login_rate_limit(client):
+    """Login endpoint rejects requests beyond the rate limit."""
+    import app as app_module
+    app_module.limiter.reset()
+    app_module.limiter.enabled = True
+    try:
+        responses = []
+        for _ in range(15):
+            resp = client.post("/login", data={"username": "notexist", "password": "bad"})
+            responses.append(resp.status_code)
+        assert 429 in responses, f"Expected a 429 response, got: {set(responses)}"
+    finally:
+        app_module.limiter.enabled = False
+
+
+def test_analyze_rate_limit(logged_in_client):
+    """Analyze endpoint rejects requests beyond the rate limit."""
+    import app as app_module
+    app_module.limiter.reset()
+    app_module.limiter.enabled = True
+    try:
+        responses = []
+        for _ in range(25):
+            resp = logged_in_client.post("/analyze", data={"text": "some job text"})
+            responses.append(resp.status_code)
+        assert 429 in responses, f"Expected a 429 response, got: {set(responses)}"
+    finally:
+        app_module.limiter.enabled = False
