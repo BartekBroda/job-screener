@@ -25,3 +25,36 @@ def test_security_headers_present(client):
     assert resp.headers.get("X-Frame-Options") == "DENY"
     assert resp.headers.get("X-Content-Type-Options") == "nosniff"
     assert "strict-origin-when-cross-origin" in resp.headers.get("Referrer-Policy", "")
+
+
+def test_account_lockout_after_failures(client):
+    """Account is locked after 5 failed login attempts."""
+    import app as app_module
+    app_module._login_attempts.clear()
+
+    for _ in range(5):
+        client.post("/login", data={"username": "testuser", "password": "wrongpass"})
+
+    resp = client.post("/login", data={"username": "testuser", "password": "testpass"})
+    # After lockout, even correct password is rejected — must NOT redirect to dashboard
+    assert resp.status_code != 302 or "/dashboard" not in resp.headers.get("Location", "")
+    assert b"locked" in resp.data.lower()
+
+
+def test_successful_login_clears_lockout(client):
+    """Successful login resets the failure counter."""
+    import app as app_module
+    app_module._login_attempts.clear()
+
+    client.post("/login", data={"username": "testuser", "password": "wrongpass"})
+    client.post("/login", data={"username": "testuser", "password": "testpass"})
+    assert "testuser" not in app_module._login_attempts
+
+
+def test_unknown_user_does_not_create_lockout_entry(client):
+    """Failed login for non-existent user does not pollute lockout dict."""
+    import app as app_module
+    app_module._login_attempts.clear()
+
+    client.post("/login", data={"username": "ghost_user_xyz", "password": "anything"})
+    assert "ghost_user_xyz" not in app_module._login_attempts

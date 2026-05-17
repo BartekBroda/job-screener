@@ -39,6 +39,32 @@ MODEL: str = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 
 init_db()
 
+# Account lockout: {username_lower: [timestamp_of_failure, ...]}
+_login_attempts: dict = {}
+_LOCKOUT_THRESHOLD = 5      # failures before lockout
+_LOCKOUT_WINDOW = 300       # seconds — window in which failures are counted
+_LOCKOUT_DURATION = 900     # seconds — how long the lockout lasts
+
+
+def _is_locked_out(username: str) -> bool:
+    attempts = _login_attempts.get(username, [])
+    if len(attempts) < _LOCKOUT_THRESHOLD:
+        return False
+    lockout_start = attempts[_LOCKOUT_THRESHOLD - 1]
+    return (time.time() - lockout_start) < _LOCKOUT_DURATION
+
+
+def _record_failure(username: str) -> None:
+    now = time.time()
+    attempts = _login_attempts.setdefault(username, [])
+    attempts[:] = [t for t in attempts if now - t < _LOCKOUT_WINDOW]
+    attempts.append(now)
+
+
+def _clear_attempts(username: str) -> None:
+    _login_attempts.pop(username, None)
+
+
 @app.after_request
 def security_headers(response):
     response.headers["X-Frame-Options"] = "DENY"
@@ -100,12 +126,21 @@ def login() -> str:
         return redirect(url_for("register"))
 
     if request.method == "POST":
-        username = request.form.get("username", "").strip()
+        username = request.form.get("username", "").strip().lower()
         password = request.form.get("password", "")
+
+        if _is_locked_out(username):
+            flash("Account is temporarily locked due to too many failed attempts. Try again in 15 minutes.")
+            return render_template("login.html")
+
         user = get_user(username)
         if user and verify_password(password, user["password_hash"]):
+            _clear_attempts(username)
             session["user_id"] = user["id"]
             return redirect(url_for("dashboard"))
+
+        if user:
+            _record_failure(username)
         flash("Invalid username or password.")
     return render_template("login.html")
 
