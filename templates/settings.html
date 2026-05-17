@@ -5,6 +5,7 @@
 <p class="page-sub">Your CV and criteria are used in every analysis. The more detail, the better the results.</p>
 
 <form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="field">
     <label>CV — experience and skills</label>
     <div class="field-hint">Write as continuous text or bullet points. More context = better job matching.</div>

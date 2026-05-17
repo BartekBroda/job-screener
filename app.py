@@ -14,6 +14,7 @@ from flask import (
     Flask, render_template, request, redirect, url_for,
     session, jsonify, make_response, flash
 )
+from flask_wtf.csrf import CSRFProtect
 from database import (
     init_db, get_user, create_user, get_user_by_id,
     update_user_profile, save_job, get_jobs, get_job,
@@ -32,6 +33,8 @@ if not _secret_key:
         "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
     )
 app.secret_key = _secret_key
+app.config["WTF_CSRF_SECRET_KEY"] = _secret_key
+csrf = CSRFProtect(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 API_KEY: str = os.environ.get("ANTHROPIC_API_KEY", "")

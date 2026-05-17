@@ -58,3 +58,13 @@ def test_unknown_user_does_not_create_lockout_entry(client):
 
     client.post("/login", data={"username": "ghost_user_xyz", "password": "anything"})
     assert "ghost_user_xyz" not in app_module._login_attempts
+
+
+def test_csrf_rejects_post_without_token(app, client):
+    """POST requests without a CSRF token must be rejected when CSRF is enabled."""
+    app.config["WTF_CSRF_ENABLED"] = True
+    try:
+        resp = client.post("/login", data={"username": "testuser", "password": "testpass"})
+        assert resp.status_code == 400
+    finally:
+        app.config["WTF_CSRF_ENABLED"] = False

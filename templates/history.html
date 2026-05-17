@@ -247,7 +247,7 @@ async function setStatus(status) {
   try {
     const fd = new FormData();
     fd.append('status', status);
-    const resp = await fetch(`/job/${jobId}/status`, { method: 'POST', body: fd });
+    const resp = await fetch(`/job/${jobId}/status`, { method: 'POST', body: fd, headers: {'X-CSRFToken': csrfToken()} });
     const data = await resp.json();
     if (data.ok) {
       await loadModalJob(jobId);
@@ -264,7 +264,7 @@ async function confirmDelete() {
   if (!confirm('Delete this analysis? This action cannot be undone.')) return;
   const jobId = getCurrentJobId();
   try {
-    const resp = await fetch(`/job/${jobId}/delete`, { method: 'POST' });
+    const resp = await fetch(`/job/${jobId}/delete`, { method: 'POST', headers: {'X-CSRFToken': csrfToken()} });
     const data = await resp.json();
     if (data.ok) {
       closeModal();
@@ -285,7 +285,7 @@ async function reanalyze() {
   if (btn) { btn.disabled = true; btn.textContent = 'Analyzing…'; }
   if (statusEl) { statusEl.style.display = 'none'; statusEl.className = 'notice'; }
   try {
-    const resp = await fetch(`/reanalyze/${jobId}`, { method: 'POST' });
+    const resp = await fetch(`/reanalyze/${jobId}`, { method: 'POST', headers: {'X-CSRFToken': csrfToken()} });
     const data = await resp.json();
     if (data.analysis_id) {
       const active = { id: data.analysis_id, source_label: 'Re-analysis' };
@@ -360,7 +360,7 @@ async function saveUrl() {
   try {
     const fd = new FormData();
     fd.append('url', url);
-    const resp = await fetch(`/job/${jobId}/url`, { method: 'POST', body: fd });
+    const resp = await fetch(`/job/${jobId}/url`, { method: 'POST', body: fd, headers: {'X-CSRFToken': csrfToken()} });
     const data = await resp.json();
     if (data.ok) {
       if (statusEl) { statusEl.style.color='#3dba73'; statusEl.style.display='block'; statusEl.textContent='URL saved.'; }

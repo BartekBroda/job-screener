@@ -199,7 +199,7 @@ async function setVerdictInline(value) {
       fd.append('verdict', value);
       url = `/job/${currentJobId}/verdict`;
     }
-    const resp = await fetch(url, {method:'POST', body:fd});
+    const resp = await fetch(url, {method:'POST', body:fd, headers:{'X-CSRFToken': csrfToken()}});
     const data = await resp.json();
     if (data.ok && badge) {
       badge.className = 'badge badge-' + (badgeClass[value] || value);
@@ -227,7 +227,7 @@ async function runAnalysis(force = false) {
     const chkFd = new FormData();
     if (url) chkFd.append('url', url);
     if (text) chkFd.append('text', text);
-    const chk = await fetch('/check_source', {method:'POST', body:chkFd});
+    const chk = await fetch('/check_source', {method:'POST', body:chkFd, headers:{'X-CSRFToken': csrfToken()}});
     const chkData = await chk.json();
     if (chkData.exists) {
       statusEl.className = 'source-status notice warn';
@@ -251,7 +251,7 @@ async function runAnalysis(force = false) {
   if (force) fd.append('force', '1');
 
   try {
-    const resp = await fetch('/analyze', {method:'POST', body:fd});
+    const resp = await fetch('/analyze', {method:'POST', body:fd, headers:{'X-CSRFToken': csrfToken()}});
     const data = await resp.json();
     document.getElementById('loading').style.display = 'none';
     statusEl.style.display = 'none';
@@ -460,7 +460,7 @@ async function setStatus(status) {
   try {
     const fd = new FormData();
     fd.append('status', status);
-    const resp = await fetch(`/job/${jobId}/status`, { method: 'POST', body: fd });
+    const resp = await fetch(`/job/${jobId}/status`, { method: 'POST', body: fd, headers: {'X-CSRFToken': csrfToken()} });
     const data = await resp.json();
     if (data.ok) {
       await loadModalJob(jobId);
@@ -474,7 +474,7 @@ async function confirmDelete() {
   if (!confirm('Delete this analysis? This action cannot be undone.')) return;
   const jobId = getCurrentJobId();
   try {
-    const resp = await fetch(`/job/${jobId}/delete`, { method: 'POST' });
+    const resp = await fetch(`/job/${jobId}/delete`, { method: 'POST', headers: {'X-CSRFToken': csrfToken()} });
     const data = await resp.json();
     if (data.ok) {
       closeModal();
@@ -495,7 +495,7 @@ async function reanalyze() {
   if (btn) { btn.disabled = true; btn.textContent = 'Analyzing…'; }
   if (statusEl) { statusEl.style.display = 'none'; statusEl.className = 'notice'; }
   try {
-    const resp = await fetch(`/reanalyze/${jobId}`, { method: 'POST' });
+    const resp = await fetch(`/reanalyze/${jobId}`, { method: 'POST', headers: {'X-CSRFToken': csrfToken()} });
     const data = await resp.json();
     if (data.analysis_id) {
       const active = { id: data.analysis_id, source_label: 'Re-analysis' };
@@ -529,7 +529,7 @@ async function saveUrl() {
   try {
     const fd = new FormData();
     fd.append('url', url);
-    const resp = await fetch(`/job/${jobId}/url`, { method: 'POST', body: fd });
+    const resp = await fetch(`/job/${jobId}/url`, { method: 'POST', body: fd, headers: {'X-CSRFToken': csrfToken()} });
     const data = await resp.json();
     if (data.ok) {
       if (statusEl) { statusEl.style.color='#3dba73'; statusEl.style.display='block'; statusEl.textContent='URL saved.'; }

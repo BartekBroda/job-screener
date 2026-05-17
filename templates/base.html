@@ -14,6 +14,13 @@
     if (t) document.documentElement.setAttribute('data-theme', t);
   })();
 </script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script>
+  function csrfToken() {
+    var m = document.querySelector('meta[name="csrf-token"]');
+    return m ? m.getAttribute('content') : '';
+  }
+</script>
 </head>
 <body>
 {% if session.user_id %}
