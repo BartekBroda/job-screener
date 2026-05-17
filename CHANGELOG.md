@@ -4,6 +4,19 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.16 — Security hardening
+
+- `SECRET_KEY` is now required — app raises `RuntimeError` at startup if the env var is missing (previously fell back to a random key that broke sessions across gunicorn workers)
+- `FLASK_DEBUG` defaults to `0`; previously defaulted to `1`, exposing the Werkzeug interactive debugger in production
+- CSRF protection via Flask-WTF: all state-changing POST endpoints (forms and AJAX) require a valid token; 400 returned on invalid or missing token
+- Account lockout: 5 failed login attempts within 5 minutes locks the account for 15 minutes; unknown usernames never create a lockout entry
+- Rate limiting via Flask-Limiter: `/login` 10/5min, `/register` 3/hr, `/analyze` 20/hr per IP
+- Security headers on every response: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`
+- Invite token comparison switched to `secrets.compare_digest()` (constant-time)
+- Password verification switched to `secrets.compare_digest()` (constant-time)
+
+---
+
 ## v0.15 — About page
 
 - New `/about` route (no login required) with project philosophy, six-layer descriptions, reality check explanation, all six verdicts/states, and inline changelog

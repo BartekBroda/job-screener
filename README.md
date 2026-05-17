@@ -56,7 +56,8 @@ cd job-screener
 
 # 2. Copy and fill in the configuration
 cp config.env.template config.env
-# add your ANTHROPIC_API_KEY to config.env
+# add ANTHROPIC_API_KEY and SECRET_KEY to config.env
+# generate SECRET_KEY: python -c "import secrets; print(secrets.token_hex(32))"
 
 # 3. Install dependencies and run
 uv sync
@@ -127,9 +128,10 @@ https://your.domain.com/register?token=YOUR_TOKEN
 |---|---|
 | `ANTHROPIC_API_KEY` | Anthropic API key (required) |
 | `ANTHROPIC_MODEL` | Model ID (default: `claude-sonnet-4-6`); must support extended thinking |
-| `SECRET_KEY` | Flask session key (change on the server) |
+| `SECRET_KEY` | Flask session key — **required**, app won't start without it. Generate: `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `INVITE_TOKEN` | Invitation token for new users |
 | `PORT` | Application port (default: `5001`) |
+| `FLASK_DEBUG` | Set to `1` for local development only — never in production (default: `0`) |
 
 ---
 
