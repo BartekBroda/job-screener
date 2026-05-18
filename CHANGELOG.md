@@ -4,6 +4,19 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.17 — Security hardening II
+
+- Session cookies now have `Secure`, `HttpOnly`, and `SameSite=Lax` flags — cookies not readable by JS, not sent cross-site, not sent over plain HTTP
+- Session lifetime set to 7 days — sessions no longer live forever
+- SSRF blocked in scraper — requests to private/loopback/link-local IPs rejected before any connection is made (covers cloud metadata endpoints, internal services)
+- Username enumeration prevented — failed login always increments the lockout counter regardless of whether the username exists; attacker can no longer probe for valid usernames via lockout timing
+- Server banner suppressed — all responses return `Server: unknown` instead of `gunicorn`
+- Password minimum raised from 6 to 10 characters
+
+Local dev note: `SESSION_COOKIE_SECURE=True` means session cookies are only sent over HTTPS. For local development without HTTPS, set `SESSION_COOKIE_SECURE=False` in your `config.env`.
+
+---
+
 ## v0.16 — Security hardening
 
 - `SECRET_KEY` is now required — app raises `RuntimeError` at startup if the env var is missing (previously fell back to a random key that broke sessions across gunicorn workers)

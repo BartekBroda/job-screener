@@ -249,11 +249,30 @@ Module-level `_login_attempts` dict: `{username_lower: [failure_timestamps]}`.
 - Cleared on successful login
 - Not shared across gunicorn workers (accepted tradeoff)
 
+### Session cookies
+```python
+SESSION_COOKIE_SECURE = True      # only sent over HTTPS — set False in local config.env for dev
+SESSION_COOKIE_HTTPONLY = True     # not readable by JS
+SESSION_COOKIE_SAMESITE = "Lax"   # not sent cross-site
+PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+```
+`session.permanent = True` set on login.
+
 ### Security headers
 `@app.after_request` adds to every response:
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: strict-origin-when-cross-origin`
+- `Server: unknown` (suppresses gunicorn banner)
+
+### SSRF protection (scraper.py)
+`_is_internal_host(url)` resolves the hostname and rejects private/loopback/link-local IPs before any HTTP connection is made. Covers `10.x`, `172.16–31.x`, `192.168.x`, `127.x`, `169.254.x`, IPv6 equivalents. Called in `fetch()` after the blocked-domain check.
+
+### Username enumeration
+Failed login always calls `_record_failure(username)` regardless of whether the user exists. Prevents timing-based username probing via lockout state differences.
+
+### Password policy
+Minimum 10 characters enforced in the `/register` route.
 
 ### Password hashing
 SHA-256 with random salt (`secrets.token_hex(16)`), stored as `salt:hash`.

@@ -132,6 +132,7 @@ https://your.domain.com/register?token=YOUR_TOKEN
 | `INVITE_TOKEN` | Invitation token for new users |
 | `PORT` | Application port (default: `5001`) |
 | `FLASK_DEBUG` | Set to `1` for local development only — never in production (default: `0`) |
+| `SESSION_COOKIE_SECURE` | Defaults to `True` (cookies only sent over HTTPS). Set to `False` for local dev without HTTPS. |
 
 ---
 
