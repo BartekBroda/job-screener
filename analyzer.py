@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 import urllib.request
 import urllib.error
@@ -6,6 +7,7 @@ from typing import Any, Dict
 
 API_URL: str = "https://api.anthropic.com/v1/messages"
 DEFAULT_MODEL: str = "claude-sonnet-4-6"
+INTERVIEW_PREP_MODEL: str = os.environ.get("INTERVIEW_PREP_MODEL", "claude-sonnet-4-6")
 
 SYSTEM_TEMPLATE: str = """You are a tool that analyzes job listings according to a strict ethical methodology.
 Return ONLY valid JSON — no text before or after, no markdown, no backticks.
@@ -167,7 +169,95 @@ FORMAT — ONLY this JSON, nothing else
 
 User = Dict[str, Any]
 AnalysisResult = Dict[str, Any]
-__all__ = ["analyze", "build_system", "AnalysisResult", "User"]
+
+INTERVIEW_PREP_SYSTEM: str = """You are an interview preparation assistant.
+Given a job description and a candidate CV, produce a structured interview prep brief in English.
+Return ONLY the following Markdown — no preamble, no code fences, no extra text.
+
+# Interview Prep: {company} — {role}
+
+## Company context
+3–5 bullet points on what you know about the company: product, business model, recent signals, culture.
+If you have no reliable knowledge, state "Limited public information available."
+
+## Likely interview rounds
+For each likely round (based on role seniority and type):
+### Round N: [Round type]
+- What they assess in this round
+- 2–3 specific prep actions for this candidate
+
+## JD requirement → Story mapping
+A table: Requirement | Match in CV | Story angle
+Map the top 6–8 JD requirements to the candidate's experience.
+Quote the JD requirement, identify the CV match, suggest a STAR angle.
+
+## Technical / domain prep checklist
+5–8 concrete topics or skills to review based on the JD.
+Be specific ("Review JTBD for product discovery", not "study product management").
+
+## Questions to ask them
+4–6 specific questions to ask the hiring manager, tied to the JD or company context.
+
+## Red flags to probe
+2–3 things from the JD that warrant a direct question from the candidate.
+"""
+
+
+def interview_prep(user: User, job_source: str, company: str, role: str, api_key: str) -> str:
+    """Generate interview preparation brief for a specific job.
+
+    Returns:
+        Markdown string with the interview prep brief.
+
+    Raises:
+        Exception: On API error or empty response.
+    """
+    cv = (user.get("cv") or "")[:3000].strip() or "[No CV — add it in Settings]"
+    job_source = job_source[:4000]
+    system = INTERVIEW_PREP_SYSTEM.replace("{company}", company or "Unknown").replace("{role}", role or "Unknown")
+    user_msg = f"Candidate CV:\n{cv}\n\nJob description:\n{job_source}"
+
+    payload_bytes = json.dumps({
+        "model": INTERVIEW_PREP_MODEL,
+        "max_tokens": 2000,
+        "system": system,
+        "messages": [{"role": "user", "content": user_msg}],
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        API_URL,
+        data=payload_bytes,
+        headers={
+            "Content-Type": "application/json",
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8")
+        try:
+            msg = json.loads(body).get("error", {}).get("message", body)
+        except Exception:
+            msg = body
+        raise Exception(f"API error {e.code}: {msg}")
+    except urllib.error.URLError as e:
+        raise Exception(f"No API connection: {e.reason}")
+
+    text = "".join(
+        b.get("text", "") for b in data.get("content", [])
+        if b.get("type") == "text"
+    )
+    if not text.strip():
+        raise Exception("Model returned empty response for interview prep.")
+    return text.strip()
+
+
+__all__ = ["analyze", "interview_prep", "build_system", "AnalysisResult", "User"]
 
 
 def build_system(user: User) -> str:
