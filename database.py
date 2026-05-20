@@ -130,6 +130,10 @@ def init_db() -> None:
             ("role_archetype TEXT", "jobs"),
             ("fit_score REAL", "jobs"),
             ("notes TEXT DEFAULT ''", "jobs"),
+            ("interview_scheduled INTEGER DEFAULT 0", "jobs"),
+            ("interview_at DATE", "jobs"),
+            ("offer_received INTEGER DEFAULT 0", "jobs"),
+            ("offer_at DATE", "jobs"),
             # kept for migration chain: old DBs may not have this yet before rename
             ("lista_zolta TEXT DEFAULT ''", "users"),
         ]:
@@ -699,6 +703,18 @@ def update_job_status(job_id: int, user_id: int, status: str) -> bool:
         sql = (
             "UPDATE jobs SET verdict='rejected', verdict_confirmed=1,"
             " applied=0, applied_at=NULL, company_rejected=0, company_rejected_at=NULL"
+            " WHERE id=? AND user_id=?"
+        )
+        params = (job_id, user_id)
+    elif status == "interview":
+        sql = (
+            "UPDATE jobs SET interview_scheduled=1, interview_at=date('now')"
+            " WHERE id=? AND user_id=?"
+        )
+        params = (job_id, user_id)
+    elif status == "offer":
+        sql = (
+            "UPDATE jobs SET offer_received=1, offer_at=date('now')"
             " WHERE id=? AND user_id=?"
         )
         params = (job_id, user_id)

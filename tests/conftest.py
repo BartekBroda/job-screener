@@ -42,3 +42,19 @@ def client(app):
 def logged_in_client(client):
     client.post("/login", data={"username": "testuser", "password": "testpassword"})
     return client
+
+
+@pytest.fixture
+def sample_job_id(app):
+    """Create a minimal job row for the test user and return its id."""
+    from database import get_conn, get_user
+    user = get_user("testuser")
+    assert user is not None
+    with get_conn() as conn:
+        conn.execute(
+            """INSERT INTO jobs (user_id, company, role, verdict, verdict_confirmed, analyzed_at)
+               VALUES (?, 'Test Corp', 'Test Role', 'worth_considering', 1, date('now'))""",
+            (user["id"],),
+        )
+        job_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    return job_id

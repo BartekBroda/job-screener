@@ -5,7 +5,9 @@
 <div class="detail-nav">
   <a href="{{ url_for('history') }}" class="detail-nav-back">← History</a>
   <div class="detail-nav-actions">
-    {%- if job.company_rejected %}{% set cur_status = 'company_rejected' %}
+    {%- if job.offer_received %}{% set cur_status = 'offer' %}
+    {%- elif job.interview_scheduled %}{% set cur_status = 'interview' %}
+    {%- elif job.company_rejected %}{% set cur_status = 'company_rejected' %}
     {%- elif job.applied %}{% set cur_status = 'applied' %}
     {%- elif job.verdict == 'rejected' and job.verdict_confirmed %}{% set cur_status = 'rejected' %}
     {%- elif job.verdict == 'rejected' and not job.verdict_confirmed %}{% set cur_status = 'rejected_soft' %}
@@ -22,6 +24,8 @@
         <optgroup label="Application">
           <option value="applied"           {% if cur_status == 'applied' %}selected{% endif %}>Applied</option>
           <option value="company_rejected"  {% if cur_status == 'company_rejected' %}selected{% endif %}>Rejected by company</option>
+          <option value="interview"         {% if cur_status == 'interview' %}selected{% endif %}>Interview</option>
+          <option value="offer"             {% if cur_status == 'offer' %}selected{% endif %}>Offer received</option>
         </optgroup>
       </select>
     </div>
@@ -43,7 +47,9 @@
 
 <div class="card">
   <div class="card-header card-header--vertical">
-    {%- if job.company_rejected %}<span class="badge badge-company_rejected" data-verdict="{{ job.verdict }}">Rejected by company</span>
+    {%- if job.offer_received %}<span class="badge badge-offer" data-verdict="{{ job.verdict }}">Offer received</span>
+    {%- elif job.interview_scheduled %}<span class="badge badge-interview" data-verdict="{{ job.verdict }}">Interview</span>
+    {%- elif job.company_rejected %}<span class="badge badge-company_rejected" data-verdict="{{ job.verdict }}">Rejected by company</span>
     {%- elif job.applied %}<span class="badge badge-applied" data-verdict="{{ job.verdict }}">Applied</span>
     {%- else %}<span class="badge badge-{{ job.verdict }}" data-verdict="{{ job.verdict }}">{{ vl.get(job.verdict, job.verdict) }}</span>{% endif %}
     {% if job.role_archetype %}<span class="badge badge-archetype">{{ job.role_archetype }}</span>{% endif %}
@@ -63,7 +69,11 @@
     {% endif %}
     <div class="card-meta">
       Analyzed: {{ job.analyzed_at }}
-      {% if job.company_rejected and job.company_rejected_at %}
+      {% if job.offer_received and job.offer_at %}
+      &nbsp;·&nbsp; <span class="text-green">★ Offer: {{ job.offer_at }}</span>
+      {% elif job.interview_scheduled and job.interview_at %}
+      &nbsp;·&nbsp; <span class="text-green">📅 Interview: {{ job.interview_at }}</span>
+      {% elif job.company_rejected and job.company_rejected_at %}
       &nbsp;·&nbsp; <span class="text-accent">✕ Rejected by company: {{ job.company_rejected_at }}</span>
       {% elif job.applied and job.applied_at %}
       &nbsp;·&nbsp; <span class="text-green">✓ Applied: {{ job.applied_at }}</span>
@@ -235,6 +245,8 @@ async function setStatus(status) {
     rejected: 'Rejected',
     applied: 'Applied',
     company_rejected: 'Rejected by company',
+    interview: 'Interview',
+    offer: 'Offer received',
   };
   try {
     const fd = new FormData();
@@ -247,7 +259,13 @@ async function setStatus(status) {
       statusEl.textContent = `Status changed to: ${verdictLabels[status] || status}`;
       const badge = document.querySelector('.card-header .badge');
       if (badge) {
-        if (status === 'applied') {
+        if (status === 'offer') {
+          badge.className = 'badge badge-offer';
+          badge.textContent = 'Offer received';
+        } else if (status === 'interview') {
+          badge.className = 'badge badge-interview';
+          badge.textContent = 'Interview';
+        } else if (status === 'applied') {
           badge.className = 'badge badge-applied';
           badge.textContent = 'Applied';
         } else if (status === 'company_rejected') {
