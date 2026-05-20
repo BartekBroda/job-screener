@@ -205,6 +205,15 @@ class="source-url-link">{{ job.job_url }}</a>
     </div>
   </div>
 
+  <div class="notes-section">
+    <div class="notes-label">Notes</div>
+    <textarea id="notes-textarea" class="notes-textarea"
+      placeholder="Add your notes — interview date, follow-up, salary info…">{{ job.notes or '' }}</textarea>
+    <button class="btn btn-secondary btn-sm notes-save-btn"
+      onclick="saveNotesDetail({{ job.id }})">Save notes</button>
+    <span id="notes-status" class="notes-status"></span>
+  </div>
+
 </div>
 {% endblock %}
 
@@ -311,6 +320,26 @@ async function saveUrl() {
     statusEl.style.color = '#e74c3c';
     statusEl.style.display = 'block';
     statusEl.textContent = 'Connection error.';
+  }
+}
+
+async function saveNotesDetail(jobId) {
+  const notes = document.getElementById('notes-textarea').value;
+  const status = document.getElementById('notes-status');
+  try {
+    const fd = new FormData();
+    fd.append('notes', notes);
+    const resp = await fetch(`/job/${jobId}/notes`, {
+      method: 'POST', body: fd, headers: { 'X-CSRFToken': csrfToken() }
+    });
+    const data = await resp.json();
+    if (status) {
+      status.textContent = data.ok ? 'Saved.' : 'Error saving.';
+      status.className = 'notes-status ' + (data.ok ? 'notes-status-ok' : 'notes-status-err');
+      setTimeout(() => { status.textContent = ''; status.className = 'notes-status'; }, 2000);
+    }
+  } catch(e) {
+    if (status) { status.textContent = 'Connection error.'; status.className = 'notes-status notes-status-err'; }
   }
 }
 

@@ -21,7 +21,7 @@ from database import (
     init_db, get_user, create_user, get_user_by_id,
     update_user_profile, update_password, save_job, get_jobs, get_job,
     export_csv, user_count, check_duplicate, update_verdict, update_job_url, delete_job, update_applied,
-    update_company_rejected, update_job_status, verify_password, get_statistics,
+    update_company_rejected, update_job_status, update_job_notes, verify_password, get_statistics,
     create_analysis, update_analysis_status, get_analysis,
 )
 from analyzer import analyze
@@ -447,6 +447,15 @@ def set_company_rejected(job_id):
     if update_company_rejected(job_id, user["id"], rejected):
         return jsonify({"ok": True, "rejected": rejected})
     return jsonify({"error": "Access denied or record not found."}), 400
+
+
+@app.route("/job/<int:job_id>/notes", methods=["POST"])
+@login_required
+def set_job_notes(job_id):
+    user = current_user()
+    notes = request.form.get("notes", "")
+    ok = update_job_notes(job_id, user["id"], notes)
+    return jsonify({"ok": ok})
 
 
 def _md_to_html(text: str, skip_h1: bool = False) -> str:

@@ -129,6 +129,7 @@ def init_db() -> None:
             ("company_rejected_at DATE", "jobs"),
             ("role_archetype TEXT", "jobs"),
             ("fit_score REAL", "jobs"),
+            ("notes TEXT DEFAULT ''", "jobs"),
             # kept for migration chain: old DBs may not have this yet before rename
             ("lista_zolta TEXT DEFAULT ''", "users"),
         ]:
@@ -640,6 +641,15 @@ def update_company_rejected(job_id: int, user_id: int, rejected: bool) -> bool:
         cur = conn.execute(
             "UPDATE jobs SET company_rejected=?, company_rejected_at=? WHERE id=? AND user_id=?",
             (1 if rejected else 0, date, job_id, user_id)
+        )
+        return cur.rowcount > 0
+
+
+def update_job_notes(job_id: int, user_id: int, notes: str) -> bool:
+    with get_conn() as conn:
+        cur = conn.execute(
+            "UPDATE jobs SET notes=? WHERE id=? AND user_id=?",
+            (notes.strip(), job_id, user_id),
         )
         return cur.rowcount > 0
 

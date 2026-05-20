@@ -541,5 +541,26 @@ async function saveUrl() {
     if (statusEl) { statusEl.style.color='#e74c3c'; statusEl.style.display='block'; statusEl.textContent='Connection error.'; }
   }
 }
+
+async function saveNotes() {
+  const jobId = getCurrentJobId();
+  const notes = document.getElementById('notes-textarea').value;
+  const status = document.getElementById('notes-status');
+  try {
+    const fd = new FormData();
+    fd.append('notes', notes);
+    const resp = await fetch(`/job/${jobId}/notes`, {
+      method: 'POST', body: fd, headers: { 'X-CSRFToken': csrfToken() }
+    });
+    const data = await resp.json();
+    if (status) {
+      status.textContent = data.ok ? 'Saved.' : 'Error saving.';
+      status.className = 'notes-status ' + (data.ok ? 'notes-status-ok' : 'notes-status-err');
+      setTimeout(() => { status.textContent = ''; status.className = 'notes-status'; }, 2000);
+    }
+  } catch(e) {
+    if (status) { status.textContent = 'Connection error.'; status.className = 'notes-status notes-status-err'; }
+  }
+}
 </script>
 {% endblock %}
