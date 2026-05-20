@@ -577,8 +577,8 @@ def change_password():
         return _settings_error("Current password is incorrect.")
     if new_pw != new_pw2:
         return _settings_error("New passwords do not match.")
-    if len(new_pw) < 8:
-        return _settings_error("New password must be at least 8 characters.")
+    if len(new_pw) < 10:
+        return _settings_error("New password must be at least 10 characters.")
 
     update_password(user["id"], new_pw)
     flash("Password updated.")

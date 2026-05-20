@@ -3,7 +3,7 @@ import pytest
 
 def test_password_change_success(logged_in_client):
     resp = logged_in_client.post("/settings/password", data={
-        "current_password": "testpass",
+        "current_password": "testpassword",
         "new_password": "newpassword123",
         "new_password2": "newpassword123",
     })
@@ -15,8 +15,8 @@ def test_password_change_success(logged_in_client):
     # restore for other tests
     logged_in_client.post("/settings/password", data={
         "current_password": "newpassword123",
-        "new_password": "testpass",
-        "new_password2": "testpass",
+        "new_password": "testpassword",
+        "new_password2": "testpassword",
     })
 
 
@@ -32,7 +32,7 @@ def test_password_change_wrong_current(logged_in_client):
 
 def test_password_change_mismatch(logged_in_client):
     resp = logged_in_client.post("/settings/password", data={
-        "current_password": "testpass",
+        "current_password": "testpassword",
         "new_password": "newpassword123",
         "new_password2": "different456",
     })
@@ -42,7 +42,7 @@ def test_password_change_mismatch(logged_in_client):
 
 def test_password_change_too_short(logged_in_client):
     resp = logged_in_client.post("/settings/password", data={
-        "current_password": "testpass",
+        "current_password": "testpassword",
         "new_password": "short",
         "new_password2": "short",
     })
@@ -50,9 +50,19 @@ def test_password_change_too_short(logged_in_client):
     assert b"10" in resp.data
 
 
+def test_password_change_nine_chars_rejected(logged_in_client):
+    resp = logged_in_client.post("/settings/password", data={
+        "current_password": "testpassword",
+        "new_password": "ninechars",
+        "new_password2": "ninechars",
+    })
+    assert resp.status_code == 200
+    assert b"10" in resp.data
+
+
 def test_password_change_requires_login(client):
     resp = client.post("/settings/password", data={
-        "current_password": "testpass",
+        "current_password": "testpassword",
         "new_password": "newpassword123",
         "new_password2": "newpassword123",
     })

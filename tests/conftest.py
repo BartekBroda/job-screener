@@ -26,7 +26,7 @@ def app():
     init_db()
     from database import create_user
     try:
-        create_user("testuser", "testpass")
+        create_user("testuser", "testpassword")
     except Exception:
         pass
     yield flask_app
@@ -40,5 +40,5 @@ def client(app):
 
 @pytest.fixture
 def logged_in_client(client):
-    client.post("/login", data={"username": "testuser", "password": "testpass"})
+    client.post("/login", data={"username": "testuser", "password": "testpassword"})
     return client

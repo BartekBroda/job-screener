@@ -35,7 +35,7 @@ def test_account_lockout_after_failures(client):
     for _ in range(5):
         client.post("/login", data={"username": "testuser", "password": "wrongpass"})
 
-    resp = client.post("/login", data={"username": "testuser", "password": "testpass"})
+    resp = client.post("/login", data={"username": "testuser", "password": "testpassword"})
     # After lockout, even correct password is rejected — must NOT redirect to dashboard
     assert resp.status_code != 302 or "/dashboard" not in resp.headers.get("Location", "")
     assert b"locked" in resp.data.lower()
@@ -47,7 +47,7 @@ def test_successful_login_clears_lockout(client):
     app_module._login_attempts.clear()
 
     client.post("/login", data={"username": "testuser", "password": "wrongpass"})
-    client.post("/login", data={"username": "testuser", "password": "testpass"})
+    client.post("/login", data={"username": "testuser", "password": "testpassword"})
     assert "testuser" not in app_module._login_attempts
 
 
@@ -116,7 +116,7 @@ def test_csrf_rejects_post_without_token(app, client):
     """POST requests without a CSRF token must be rejected when CSRF is enabled."""
     app.config["WTF_CSRF_ENABLED"] = True
     try:
-        resp = client.post("/login", data={"username": "testuser", "password": "testpass"})
+        resp = client.post("/login", data={"username": "testuser", "password": "testpassword"})
         assert resp.status_code == 400
     finally:
         app.config["WTF_CSRF_ENABLED"] = False
