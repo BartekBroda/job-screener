@@ -142,11 +142,12 @@ https://your.domain.com/register?token=YOUR_TOKEN
 - **Six analysis layers** with verdict and justification; the reputation layer uses the model's knowledge about the company (Glassdoor, media, C-level history)
 - **Reality check** — plain-English decoding of listing language before the layer analysis; corpo-speak translated to what it actually means
 - **Detail modal** — clicking a row in history or dashboard opens the details in place; ← → navigation between listings, URL reflects the currently viewed listing
-- **Verdicts and states** — worth considering / needs review / rejected (AI) / rejected (confirmed); mark submitted applications
-- **Analysis history** — table with visual category filtering, CSV export from Settings
+- **Verdicts and states** — worth considering / needs review / rejected (AI) / rejected (confirmed); applied / interview / offer / rejected by company
+- **Per-listing notes** — freeform notes on every job detail; saved via AJAX
+- **Analysis history** — table with live search, sortable columns, visual category filtering, CSV export
 - **Statistics dashboard** — aggregated statistics: verdict distribution, application funnel, per-layer flag counts, fit score averages
 - **Light/dark mode** — toggle in navigation, preference saved in the browser
-- **Multi-user** — each user has a separate profile, lists, and history
+- **Multi-user** — each user has a separate profile, lists, and history; password change in Settings
 
 ---
 

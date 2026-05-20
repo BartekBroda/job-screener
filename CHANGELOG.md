@@ -4,6 +4,18 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.18 — UX improvements
+
+- **Password change** — new form in Settings; requires current password, enforces 10-character minimum
+- **Per-listing notes** — freeform textarea on every job detail (modal and full-page view); saved instantly via AJAX; max 10 000 characters
+- **History search** — live search input above the history table; filters by company, role, or verdict as you type; works alongside category filters
+- **Sortable history columns** — click any column header to sort; defaults to newest first; arrow indicator shows active sort
+- **Settings draft protection** — profile form (CV, Zero Rule, Yellow List, criteria) saves to `localStorage` as you type; restored on next visit if the server-rendered value is empty; warns before leaving with unsaved changes
+- **Interview and offer stages** — two new post-application statuses in the status dropdown: "Interview" (purple) and "Offer received" (green); setting offer automatically sets interview and applied; dates stored and shown in card header; filter buttons in history
+- **Tab title during analysis** — browser tab shows ⏳ while analysis runs and ✓ when complete; resets on dismiss
+
+---
+
 ## v0.17 — Security hardening II
 
 - Session cookies now have `Secure`, `HttpOnly`, and `SameSite=Lax` flags — cookies not readable by JS, not sent cross-site, not sent over plain HTTP

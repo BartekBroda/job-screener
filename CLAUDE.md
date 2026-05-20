@@ -104,6 +104,11 @@ applied,                — 0/1 application status
 applied_at,             — application date
 company_rejected,       — 0/1 company rejection
 company_rejected_at,    — rejection date
+interview_scheduled,    — 0/1 interview stage
+interview_at,           — interview date
+offer_received,         — 0/1 offer stage
+offer_at,               — offer date
+notes,                  — freeform user notes (max 10 000 chars)
 reasoning,              — model's internal reasoning
 raw_json                — full JSON response from the model
 ```
@@ -124,8 +129,10 @@ check_duplicate(user_id, source)  # hash by URL or content
 update_verdict(job_id, user_id, verdict)     # always sets verdict_confirmed=1
 update_applied(job_id, user_id, applied)
 update_company_rejected(job_id, user_id, rejected)
-update_job_status(job_id, user_id, status)   # handles all 6 statuses
+update_job_status(job_id, user_id, status)   # handles all 8 statuses
 update_job_url(job_id, user_id, url)
+update_job_notes(job_id, user_id, notes)     # freeform notes, max 10 000 chars
+update_password(user_id, new_password)       # hashes and stores new password
 delete_job(job_id, user_id)
 get_statistics(user_id)              # aggregated data for /statistics page
 ```
@@ -170,9 +177,11 @@ POST     /job/<id>/status       — change status (all 6 values)
 POST     /job/<id>/url          — add/change URL
 POST     /job/<id>/applied      — application status
 POST     /job/<id>/company_rejected — company rejection
+POST     /job/<id>/notes
 POST     /job/<id>/delete
 GET      /statistics
 GET      /settings
+POST     /settings/password
 GET      /export/csv
 GET      /changelog
 GET      /about               — no login required; project overview + inline changelog
@@ -190,11 +199,15 @@ Dropdown `#status-select` with `<optgroup>` groups:
 | `rejected` | Rejected | verdict=rejected, confirmed=1 |
 | `applied` | Applied | applied=1 |
 | `company_rejected` | Rejected by company | company_rejected=1, applied=1 |
+| `interview` | Interview | interview_scheduled=1, interview_at=now, applied=1, clears company_rejected |
+| `offer` | Offer received | offer_received=1, offer_at=now, interview_scheduled=1, applied=1, clears company_rejected |
 
 Handled by `update_job_status()` in `database.py`.
 
 ### Badges in cards and table
-Badge reflects application status, not just verdict:
+Badge reflects application status, not just verdict (priority: offer > interview > company_rejected > applied > verdict):
+- `offer_received` → green badge "OFFER RECEIVED" (`badge-offer`)
+- `interview_scheduled` → purple badge "INTERVIEW" (`badge-interview`)
 - `applied` → green badge "APPLIED" (`badge-applied`)
 - `company_rejected` → orange badge "REJECTED BY COMPANY" (`badge-company_rejected`)
 - others → badge based on verdict (`badge-rejected`, `badge-warning`, `badge-worth_considering`)
@@ -389,6 +402,8 @@ Row highlight is the only colour signal at category level.
 | Rejected | `row-rejected` | `badge-rejected` | red, full row background |
 | Applied | `row-applied` | `badge-applied` | green |
 | Rejected by company | `row-company-rejected` | `badge-company_rejected` | orange, no row background |
+| Interview | `row-interview` | `badge-interview` | purple, no row background |
+| Offer received | `row-offer` | `badge-offer` | green, no row background |
 
 Hover on coloured rows: `box-shadow: inset 0 0 0 9999px var(--hover-overlay)`
 instead of `filter: brightness()` — does not affect badge and dot colours.
@@ -465,6 +480,15 @@ instead of `filter: brightness()` — does not affect badge and dot colours.
 `.about-verdict-label` — fixed-width verdict name (uses colour utilities: `td-blue`, `text-yellow`, `text-red`, `text-green`, `td-orange`)
 `.about-verdict-desc` — small muted verdict description
 `.about-changelog` — wrapper around inline changelog on About page
+`.settings-section-divider` — horizontal rule between profile form and password change form in Settings
+`.notes-section`, `.notes-label`, `.notes-textarea`, `.notes-save-btn`, `.notes-status` — per-listing notes anatomy
+`.notes-status-ok`, `.notes-status-err` — save confirmation states on notes status span
+`.history-search-wrap`, `.history-search`, `.history-search:focus` — live search input above history table
+`.th-sortable`, `.th-sortable:hover`, `.sort-arrow` — sortable column headers in history table
+`.badge-interview` — purple border/text badge for interview stage
+`.badge-offer` — green border/text badge for offer stage
+`.row-interview`, `.row-offer` — table row classes for interview/offer (no background highlight)
+`.filter-btn.fb-interview`, `.filter-btn.fb-offer` — filter button colour modifiers for new stages
 
 ---
 
