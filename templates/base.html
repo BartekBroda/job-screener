@@ -68,6 +68,7 @@
   }
 
   function showRunning(src) {
+    document.title = '⏳ Analyzing… — Job Screener';
     banner.className = 'analysis-banner is-running is-visible';
     document.documentElement.style.setProperty('--sticky-top', banner.offsetHeight + 'px');
     banner.onclick = null;
@@ -78,6 +79,7 @@
   }
 
   function showDone(d) {
+    document.title = '✓ Done — Job Screener';
     banner.className = 'analysis-banner is-done is-visible';
     document.documentElement.style.setProperty('--sticky-top', banner.offsetHeight + 'px');
     var bc = 'analysis-banner-badge badge-' + (d.verdict || '');
@@ -88,6 +90,7 @@
       '<span class="' + bc + '">' + vLabel(d.verdict) + '</span>' +
       '<span class="analysis-banner-action">View result →</span>';
     banner.onclick = function () {
+      document.title = 'Job Screener';
       localStorage.removeItem('activeAnalysis');
       if (timer) clearInterval(timer);
       banner.className = 'analysis-banner';
@@ -113,6 +116,7 @@
     var btn = document.getElementById('ab-dismiss');
     if (btn) btn.onclick = function (e) {
       e.stopPropagation();
+      document.title = 'Job Screener';
       localStorage.removeItem('activeAnalysis');
       banner.className = 'analysis-banner';
       banner.innerHTML = '';
