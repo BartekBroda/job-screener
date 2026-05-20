@@ -663,7 +663,7 @@ def save_interview_prep(job_id: int, user_id: int, content: str) -> bool:
     with get_conn() as conn:
         cur = conn.execute(
             "UPDATE jobs SET interview_prep=? WHERE id=? AND user_id=?",
-            (content, job_id, user_id),
+            (content.strip(), job_id, user_id),
         )
         return cur.rowcount > 0
 
