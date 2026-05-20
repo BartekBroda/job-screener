@@ -21,6 +21,10 @@
 {% if not jobs %}
 <div class="notice">No analyses yet. <a href="{{ url_for('dashboard') }}" style="color:var(--accent);">Analyze your first listing →</a></div>
 {% else %}
+<div class="history-search-wrap">
+  <input type="search" id="history-search" class="history-search"
+    placeholder="Search by role or company…" oninput="applyFilters()">
+</div>
 <div class="filter-bar">
   <span class="filter-label">Show:</span>
   <button class="filter-btn fb-all" onclick="showAll()">Show all</button>
@@ -307,43 +311,49 @@ function showUrlEdit() {
   if (el) el.style.display = 'block';
 }
 
-// ── Category filter ───────────────────────────────────────────────────────
+// ── Filters + search ─────────────────────────────────────────────────────
 
-const FILTER_STORAGE_KEY = 'history_hidden_categories';
-const hiddenCategories = new Set(JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY) || '[]'));
+const HIDDEN_KEY = 'history_hidden_categories';
+let hiddenCats = new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'));
 
-function toggleFilter(cat, btn) {
-  if (hiddenCategories.has(cat)) {
-    hiddenCategories.delete(cat);
-    btn.classList.add('active');
-  } else {
-    hiddenCategories.add(cat);
-    btn.classList.remove('active');
-  }
-  localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify([...hiddenCategories]));
-  applyFilter();
+function applyFilters() {
+  const q = (document.getElementById('history-search') ? document.getElementById('history-search').value : '').toLowerCase().trim();
+  document.querySelectorAll('tbody tr[data-category]').forEach(function(row) {
+    var cat = row.dataset.category;
+    var role = (row.querySelector('.td-role') || {textContent:''}).textContent.toLowerCase();
+    var company = (row.cells[2] || {textContent:''}).textContent.toLowerCase();
+    var matchesCat = !hiddenCats.has(cat);
+    var matchesSearch = !q || role.includes(q) || company.includes(q);
+    row.style.display = matchesCat && matchesSearch ? '' : 'none';
+  });
 }
 
-function applyFilter() {
-  document.querySelectorAll('tbody tr[data-category]').forEach(row => {
-    row.style.display = hiddenCategories.has(row.dataset.category) ? 'none' : '';
-  });
+// alias for updateTableRow compatibility
+function applyFilter() { applyFilters(); }
+
+function toggleFilter(cat, btn) {
+  if (hiddenCats.has(cat)) { hiddenCats.delete(cat); btn.classList.add('active'); }
+  else { hiddenCats.add(cat); btn.classList.remove('active'); }
+  localStorage.setItem(HIDDEN_KEY, JSON.stringify([...hiddenCats]));
+  applyFilters();
 }
 
 function showAll() {
-  hiddenCategories.clear();
-  localStorage.setItem(FILTER_STORAGE_KEY, '[]');
-  document.querySelectorAll('.filter-btn[data-cat]').forEach(b => b.classList.add('active'));
-  applyFilter();
+  hiddenCats.clear();
+  localStorage.setItem(HIDDEN_KEY, '[]');
+  document.querySelectorAll('.filter-btn[data-cat]').forEach(function(b) { b.classList.add('active'); });
+  var searchEl = document.getElementById('history-search');
+  if (searchEl) searchEl.value = '';
+  applyFilters();
 }
 
-// restore button states on load
+// restore hidden categories on load
 (function() {
-  hiddenCategories.forEach(cat => {
-    const btn = document.querySelector(`.filter-btn[data-cat="${cat}"]`);
+  hiddenCats.forEach(function(cat) {
+    var btn = document.querySelector('.filter-btn[data-cat="' + cat + '"]');
     if (btn) btn.classList.remove('active');
   });
-  applyFilter();
+  applyFilters();
   var fb = document.querySelector('.filter-bar');
   if (fb) document.documentElement.style.setProperty('--filter-bar-h', fb.offsetHeight + 'px');
 })();

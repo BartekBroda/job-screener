@@ -666,3 +666,11 @@ footer a:hover { color: var(--muted); }
 .about-verdict-label { font-family: var(--fm); font-size: var(--fs-xs); min-width: 140px; flex-shrink: 0; }
 .about-verdict-desc { font-size: var(--fs-sm); color: var(--muted); }
 .about-changelog { margin-top: 8px; }
+
+/* ── History search ──────────────────────────────────────────── */
+.history-search-wrap  { margin-bottom: 12px; }
+.history-search       { width: 100%; max-width: 360px; background: var(--bg);
+                        color: var(--text); border: 1px solid var(--border);
+                        border-radius: var(--radius-sm); padding: 8px 12px;
+                        font-family: var(--fb); font-size: var(--fs-sm); box-sizing: border-box; }
+.history-search:focus { border-color: var(--accent); outline: none; }
