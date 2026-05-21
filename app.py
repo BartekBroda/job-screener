@@ -397,7 +397,7 @@ def generate_interview_prep(job_id):
         return jsonify({"error": "No API key configured."}), 400
     job = get_job(job_id, user["id"])
     if not job:
-        return "", 404
+        return jsonify({"error": "Analysis not found."}), 404
     eligible = (
         job["verdict"] == "worth_considering"
         or job["applied"]

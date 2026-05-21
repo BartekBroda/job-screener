@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sqlite3
 import urllib.request
 import urllib.error
@@ -214,7 +215,8 @@ def interview_prep(user: User, job_source: str, company: str, role: str, api_key
     """
     cv = (user.get("cv") or "")[:3000].strip() or "[No CV — add it in Settings]"
     job_source = job_source[:4000]
-    system = INTERVIEW_PREP_SYSTEM.replace("{company}", company or "Unknown").replace("{role}", role or "Unknown")
+    _vals = {"company": company or "Unknown", "role": role or "Unknown"}
+    system = re.sub(r'\{(company|role)\}', lambda m: _vals[m.group(1)], INTERVIEW_PREP_SYSTEM)
     user_msg = f"Candidate CV:\n{cv}\n\nJob description:\n{job_source}"
 
     payload_bytes = json.dumps({
