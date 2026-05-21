@@ -238,26 +238,49 @@ window.addEventListener('popstate', e => {
 // ── Table row helpers ─────────────────────────────────────────────────────
 
 function updateTableRow(jobId, status, verdict) {
-  const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
-  if (!row) return;
-  row.classList.remove('row-rejected', 'row-rejected-soft', 'row-applied', 'row-company-rejected', 'row-worth-considering', 'row-warning', 'row-interview', 'row-offer');
-  if (status === 'offer')                 row.classList.add('row-offer');
-  else if (status === 'interview')        row.classList.add('row-interview');
-  else if (status === 'rejected')         row.classList.add('row-rejected');
-  else if (status === 'company_rejected') row.classList.add('row-company-rejected');
-  else if (status === 'applied')          row.classList.add('row-applied');
-  else if (status === 'rejected_soft')    row.classList.add('row-rejected-soft');
-  else if (verdict === 'worth_considering') row.classList.add('row-worth-considering');
-  else if (verdict === 'warning')         row.classList.add('row-warning');
-
-  // update data-category for filter
-  const newCat = (status === 'applied' || status === 'company_rejected' || status === 'rejected' || status === 'rejected_soft' || status === 'interview' || status === 'offer')
+  const ROW_CLASSES = ['row-rejected', 'row-rejected-soft', 'row-applied', 'row-company-rejected', 'row-worth-considering', 'row-warning', 'row-interview', 'row-offer'];
+  const newCat = (['applied', 'company_rejected', 'rejected', 'rejected_soft', 'interview', 'offer'].includes(status))
     ? status : verdict;
-  row.dataset.category = newCat;
+
+  const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+  if (row) {
+    row.classList.remove(...ROW_CLASSES);
+    if (status === 'offer')                    row.classList.add('row-offer');
+    else if (status === 'interview')           row.classList.add('row-interview');
+    else if (status === 'rejected')            row.classList.add('row-rejected');
+    else if (status === 'company_rejected')    row.classList.add('row-company-rejected');
+    else if (status === 'applied')             row.classList.add('row-applied');
+    else if (status === 'rejected_soft')       row.classList.add('row-rejected-soft');
+    else if (verdict === 'worth_considering')  row.classList.add('row-worth-considering');
+    else if (verdict === 'warning')            row.classList.add('row-warning');
+    row.dataset.category = newCat;
+  }
+
+  const card = document.querySelector(`.job-card[data-job-id="${jobId}"]`);
+  if (card) {
+    card.classList.remove(...ROW_CLASSES);
+    if (status === 'offer')                    card.classList.add('row-offer');
+    else if (status === 'interview')           card.classList.add('row-interview');
+    else if (status === 'rejected')            card.classList.add('row-rejected');
+    else if (status === 'company_rejected')    card.classList.add('row-company-rejected');
+    else if (status === 'applied')             card.classList.add('row-applied');
+    else if (status === 'rejected_soft')       card.classList.add('row-rejected-soft');
+    else if (verdict === 'worth_considering')  card.classList.add('row-worth-considering');
+    else if (verdict === 'warning')            card.classList.add('row-warning');
+    card.dataset.category = newCat;
+    const cardStatus = card.querySelector('.job-card-meta span:last-child');
+    if (cardStatus) {
+      cardStatus.textContent = status === 'offer' ? 'Offer' : status === 'interview' ? 'Interview' : status === 'applied' ? 'Applied' : status === 'company_rejected' ? 'Rejected by co.' : '—';
+    }
+  }
+
   applyFilter();
 
-  const badge = row.querySelector('.badge');
-  if (badge) {
+  const BADGE_LABELS = {rejected:'Rejected', warning:'Needs review', worth_considering:'Worth considering'};
+  [row, card].forEach(function(el) {
+    if (!el) return;
+    const badge = el.querySelector('.badge');
+    if (!badge) return;
     if (status === 'offer') {
       badge.className = 'badge badge-offer'; badge.textContent = 'Offer received';
     } else if (status === 'interview') {
@@ -268,10 +291,10 @@ function updateTableRow(jobId, status, verdict) {
       badge.className = 'badge badge-company_rejected'; badge.textContent = 'Rejected by company';
     } else {
       badge.className = `badge badge-${verdict}`;
-      badge.textContent = {rejected:'Rejected', warning:'Needs review', worth_considering:'Worth considering'}[verdict] || verdict;
+      badge.textContent = BADGE_LABELS[verdict] || verdict;
     }
     badge.dataset.verdict = verdict;
-  }
+  });
 }
 
 // reads current state from the freshly loaded partial DOM
@@ -328,6 +351,8 @@ async function confirmDelete() {
       closeModal();
       const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
       if (row) row.remove();
+      const card = document.querySelector(`.job-card[data-job-id="${jobId}"]`);
+      if (card) card.remove();
       JOB_IDS.splice(modalIdx, 1);
       if (modalIdx >= JOB_IDS.length) modalIdx = JOB_IDS.length - 1;
     } else {
@@ -409,6 +434,14 @@ function applyFilters() {
     var matchesCat = !hiddenCats.has(cat);
     var matchesSearch = !q || role.includes(q) || company.includes(q);
     row.style.display = matchesCat && matchesSearch ? '' : 'none';
+  });
+  document.querySelectorAll('.job-card[data-category]').forEach(function(card) {
+    var cat = card.dataset.category;
+    var role = (card.querySelector('.job-card-role') || {textContent:''}).textContent.toLowerCase();
+    var company = (card.querySelector('.job-card-company') || {textContent:''}).textContent.toLowerCase();
+    var matchesCat = !hiddenCats.has(cat);
+    var matchesSearch = !q || role.includes(q) || company.includes(q);
+    card.style.display = matchesCat && matchesSearch ? '' : 'none';
   });
 }
 
