@@ -71,7 +71,7 @@ job-screener/
 │   ├── job_detail.html — full-page analysis detail view
 │   ├── settings.html   — CV, Zero Rule, Yellow List, criteria
 │   ├── about.html      — project overview, six layers, reality check, verdicts, inline changelog
-│   └── changelog.html  — renders CHANGELOG.md via a custom parser
+│   └── changelog.html  — renders CHANGELOG.md via a custom parser (`_md_to_html` + `_inline_md` in app.py; supports `**bold**` and `` `code` ``)
 └── data/
     └── screener.db     — SQLite database (never commit)
 ```

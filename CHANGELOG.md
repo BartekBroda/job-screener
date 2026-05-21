@@ -4,10 +4,12 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
-## v0.20 — Zero/Yellow List conflict detection
+## v0.20 — Zero/Yellow List conflict detection + changelog improvements
 
 - **Conflict check in Settings** — saving the profile is blocked if any entry appears in both Zero List and Yellow List; the error flash names the conflicting entries; entries are matched case-insensitively with `- ` prefix stripped
 - **Flash message categories** — `base.html` now renders flash messages with their category (`info` / `error`), enabling red error styling via the existing `.flash.error` CSS class
+- **Inline markdown in changelog** — `**bold**` and `` `code` `` now render correctly in `/changelog` and `/about`; applied after HTML-escaping so no XSS risk
+- **Code snippet styling** — inline `code` in changelog is 1 px smaller than surrounding text and has a darker background (`#161616`, 15% darker than surface); light mode uses `#d7d6d5`
 
 ---
 
