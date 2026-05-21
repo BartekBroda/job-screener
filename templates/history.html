@@ -129,7 +129,7 @@
     </div>
     <div class="job-card-meta">
       <span class="td-date">{{ j.analyzed_at[:10] }}</span>
-      <span>
+      <span data-status-text>
         {%- if j.offer_received %}Offer
         {%- elif j.interview_scheduled %}Interview
         {%- elif j.applied %}Applied
@@ -268,7 +268,7 @@ function updateTableRow(jobId, status, verdict) {
     else if (verdict === 'worth_considering')  card.classList.add('row-worth-considering');
     else if (verdict === 'warning')            card.classList.add('row-warning');
     card.dataset.category = newCat;
-    const cardStatus = card.querySelector('.job-card-meta span:last-child');
+    const cardStatus = card.querySelector('[data-status-text]');
     if (cardStatus) {
       cardStatus.textContent = status === 'offer' ? 'Offer' : status === 'interview' ? 'Interview' : status === 'applied' ? 'Applied' : status === 'company_rejected' ? 'Rejected by co.' : '—';
     }
@@ -277,8 +277,7 @@ function updateTableRow(jobId, status, verdict) {
   applyFilter();
 
   const BADGE_LABELS = {rejected:'Rejected', warning:'Needs review', worth_considering:'Worth considering'};
-  [row, card].forEach(function(el) {
-    if (!el) return;
+  [row, card].filter(Boolean).forEach(function(el) {
     const badge = el.querySelector('.badge');
     if (!badge) return;
     if (status === 'offer') {
