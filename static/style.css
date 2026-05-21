@@ -113,7 +113,7 @@ nav { border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex;
 /* ── layout ────────────────────────────────────────────────────────────── */
 .container { max-width: 1280px; margin: 0 auto; padding: 40px 24px 80px; }
 .container-full { max-width: none; margin: 0; padding: 40px 24px 80px; }
-.table-wrap { overflow-x: clip; }
+.table-wrap { overflow-x: auto; }
 .col-date    { width: 90px; }
 .col-badge   { width: 200px; }
 .col-l0      { width: 44px; }
@@ -388,6 +388,44 @@ footer a:hover { color: var(--muted); }
   }
   nav.nav-open .nav-links { display: flex; }
   .nav-links a { padding: 12px 24px; border-radius: 0; }
+}
+
+/* phone-specific */
+.job-cards { display: none; }
+
+@media (max-width: 480px) {
+  .container, .container-full { padding: 20px 16px 60px; }
+  .page-title { font-size: var(--fs-2xl); }
+  .table-wrap { display: none; }
+  .filter-bar { padding: 8px 0; }
+
+  .job-cards { display: flex; flex-direction: column; gap: 8px; }
+  .job-card {
+    background: var(--surface); border-radius: var(--radius-md);
+    padding: 14px 16px; cursor: pointer;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .job-card-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; gap: 12px;
+  }
+  .job-card-title { min-width: 0; }
+  .job-card-company { font-size: var(--fs-base); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .job-card-role { font-size: var(--fs-sm); color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .job-card-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 10px; font-size: var(--fs-xs);
+    color: var(--dim); font-family: var(--fm); letter-spacing: 0.04em;
+  }
+  .job-card .badge { flex-shrink: 0; font-size: 10px; }
+
+  /* touch targets */
+  .btn-primary, .btn-secondary, .btn-sm, .btn-danger { min-height: 44px; }
+
+  /* modal full-screen */
+  .modal-overlay { padding: 0; align-items: flex-start; }
+  .modal-container { border-radius: 0; min-height: 100dvh; }
+  .modal-header { top: 0; }
 }
 
 /* ── theme toggle button ─────────────────────────────────────────────────── */

@@ -98,6 +98,48 @@
   </tbody>
 </table>
 </div>
+<div class="job-cards">
+  {% for j in jobs %}
+  {% if j.offer_received %}{% set row_cls = 'row-offer' %}{% set cat = 'offer' %}
+  {% elif j.interview_scheduled %}{% set row_cls = 'row-interview' %}{% set cat = 'interview' %}
+  {% elif j.verdict == 'rejected' and j.verdict_confirmed %}{% set row_cls = 'row-rejected' %}{% set cat = 'rejected' %}
+  {% elif j.company_rejected %}{% set row_cls = 'row-company-rejected' %}{% set cat = 'company_rejected' %}
+  {% elif j.applied %}{% set row_cls = 'row-applied' %}{% set cat = 'applied' %}
+  {% elif j.verdict == 'rejected' and not j.verdict_confirmed %}{% set row_cls = 'row-rejected-soft' %}{% set cat = 'rejected_soft' %}
+  {% elif j.verdict == 'worth_considering' %}{% set row_cls = 'row-worth-considering' %}{% set cat = 'worth_considering' %}
+  {% elif j.verdict == 'warning' %}{% set row_cls = 'row-warning' %}{% set cat = 'warning' %}
+  {% else %}{% set row_cls = '' %}{% set cat = j.verdict or 'unknown' %}{% endif %}
+  <div class="job-card {{ row_cls }}" data-job-id="{{ j.id }}" data-category="{{ cat }}" onclick="openModal({{ j.id }})">
+    <div class="job-card-header">
+      <div class="job-card-title">
+        <div class="job-card-company">{{ j.company or 'Unknown' }}</div>
+        <div class="job-card-role">{{ j.role or '—' }}</div>
+      </div>
+      {%- if j.offer_received -%}
+        <span class="badge badge-offer" data-verdict="{{ j.verdict }}">Offer received</span>
+      {%- elif j.interview_scheduled -%}
+        <span class="badge badge-interview" data-verdict="{{ j.verdict }}">Interview</span>
+      {%- elif j.company_rejected -%}
+        <span class="badge badge-company_rejected" data-verdict="{{ j.verdict }}">Rejected by company</span>
+      {%- elif j.applied -%}
+        <span class="badge badge-applied" data-verdict="{{ j.verdict }}">Applied</span>
+      {%- else -%}
+        <span class="badge badge-{{ j.verdict }}" data-verdict="{{ j.verdict }}">{{ {'rejected':'Rejected','warning':'Needs review','worth_considering':'Worth considering'}.get(j.verdict, j.verdict) }}</span>
+      {%- endif %}
+    </div>
+    <div class="job-card-meta">
+      <span class="td-date">{{ j.analyzed_at[:10] }}</span>
+      <span>
+        {%- if j.offer_received %}Offer
+        {%- elif j.interview_scheduled %}Interview
+        {%- elif j.applied %}Applied
+        {%- elif j.company_rejected %}Rejected by co.
+        {%- else %}—{%- endif %}
+      </span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
 {% endif %}
 {% endblock %}
 
