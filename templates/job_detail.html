@@ -405,6 +405,7 @@ async function generatePrep() {
       method: 'POST',
       headers: {'X-CSRFToken': csrfToken()},
     });
+    if (!resp.headers.get('content-type')?.includes('application/json')) throw new Error(`Server error ${resp.status}`);
     const data = await resp.json();
     if (data.ok) {
       if (contentBox) {
