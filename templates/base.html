@@ -40,10 +40,10 @@
 <div id="analysis-banner" class="analysis-banner" role="status" aria-live="polite"></div>
 
 <div class="{% block container_class %}container{% endblock %}">
-  {% with messages = get_flashed_messages() %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      {% for msg in messages %}
-        <div class="flash info">{{ msg }}</div>
+      {% for category, msg in messages %}
+        <div class="flash {{ category if category in ('info', 'error') else 'info' }}">{{ msg }}</div>
       {% endfor %}
     {% endif %}
   {% endwith %}

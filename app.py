@@ -604,6 +604,27 @@ def settings():
         zero_list = request.form.get("zero_list", "")
         yellow_list = request.form.get("yellow_list", "")
         criteria = request.form.get("criteria", "")
+
+        def _parse_list(text):
+            entries = set()
+            for line in text.splitlines():
+                entry = line.strip().lstrip("-").strip().lower()
+                if entry:
+                    entries.add(entry)
+            return entries
+
+        zero_entries = _parse_list(zero_list)
+        yellow_entries = _parse_list(yellow_list)
+        conflicts = zero_entries & yellow_entries
+        if conflicts:
+            conflict_list = ", ".join(sorted(conflicts))
+            flash(
+                f"Conflict: the following entries appear in both Zero List and Yellow List — {conflict_list}. "
+                f"Remove them from one list before saving.",
+                "error",
+            )
+            return render_template("settings.html", user=user)
+
         update_user_profile(user["id"], cv, zero_list, criteria, yellow_list)
         flash("Profile saved.")
         return redirect(url_for("settings"))
