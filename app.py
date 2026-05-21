@@ -108,7 +108,8 @@ def login_required(f):
     """Decorator that requires an authenticated session."""
     @functools.wraps(f)
     def decorated(*args, **kwargs):
-        if not session.get("user_id"):
+        if not session.get("user_id") or not current_user():
+            session.clear()
             if request.headers.get("X-Requested-With") == "XMLHttpRequest" or \
                request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
                 return jsonify({"error": "Session expired. Please log in again."}), 401
