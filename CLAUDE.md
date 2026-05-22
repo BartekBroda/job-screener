@@ -494,7 +494,8 @@ instead of `filter: brightness()` — does not affect badge and dot colours.
 `.badge-offer` — green border/text badge for offer stage
 `.row-interview`, `.row-offer` — table row classes for interview/offer (no background highlight)
 `.filter-btn.fb-interview`, `.filter-btn.fb-offer` — filter button colour modifiers for new stages
-`.nav-toggle` — hamburger button (hidden by default; `display: flex` at ≤768 px); `margin-left: auto` pushes it right
+`.nav-toggle` — hamburger button (hidden by default; `display: flex` at ≤768 px); `margin-left: auto` pushes it right at mobile (nav-links is hidden so auto margin is free)
+`.nav-links` — has `margin-left: auto` globally; pushes itself and the theme toggle (which follows it in DOM) to the right on desktop; at ≤768 px `display: none` so its auto margin disappears and nav-toggle's takes over
 `nav.nav-open .nav-links` — vertical dropdown state when hamburger is open
 `.job-cards` — card list container (hidden by default; `display: flex / flex-direction: column` at ≤480 px)
 `.job-card` — single card in mobile history list; `data-job-id`, `data-category`, `tabindex="0"`, `onclick`

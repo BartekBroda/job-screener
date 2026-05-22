@@ -6,12 +6,13 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ## v0.21 — Mobile UX
 
-- **Hamburger navigation** — nav collapses to a ☰ button on screens ≤768 px; tap opens a vertical dropdown with all links; closes on link click, outside click, or second tap; ✕ icon when open; theme toggle stays accessible outside the dropdown at all screen sizes
+- **Hamburger navigation** — nav collapses to a ☰ button on screens ≤768 px; tap opens a vertical dropdown with all links; closes on link click, outside click, or second tap; ✕ icon when open; theme toggle stays accessible at all screen sizes
 - **History card list** — below 480 px the history table is replaced by a stacked card list; each card shows company, role, verdict badge, date, and application status; tap opens the detail modal; category filters and live search cover cards and table alike; delete and status changes update both views
 - **Full-screen modal** — detail modal expands to fill the screen on phones (no overlay chrome, border-radius removed, `min-height: 100dvh`); sticky header and close/nav buttons remain
 - **Touch targets** — all primary/secondary/small/danger buttons have a minimum tap height of 44 px on phone
 - **Container padding** — horizontal padding reduced to 16 px and bottom padding increased to 60 px on phone to avoid content touching screen edges
-- **Table overflow** — `.table-wrap` changed from `overflow-x: clip` to `auto` so any table that appears on narrow screens scrolls instead of clipping
+- **Fix: sticky table header** — restored `overflow-x: clip` on `.table-wrap`; changing it to `auto` broke `position: sticky` on `thead th` (scrollable overflow containers don't allow sticky children)
+- **Fix: theme toggle position** — theme toggle was appearing in the centre of the nav on desktop due to `justify-content: space-between` treating it as a separate flex item; moved after `.nav-links` and pushed the group right with `margin-left: auto` on `.nav-links`
 
 ---
 
