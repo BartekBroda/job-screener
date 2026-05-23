@@ -207,7 +207,7 @@ Dropdown `#status-select` with `<optgroup>` groups:
 | `worth_considering` | Worth considering | verdict, confirmed=1 |
 | `warning` | Needs review | verdict, confirmed=1 |
 | `rejected_soft` | AI rejected | verdict=rejected, confirmed=0 — not shown in dropdown (AI-only state) |
-| `rejected` | Rejected | verdict=rejected, confirmed=1 |
+| `rejected` | Reject (dropdown) / User rejected (badge) | verdict=rejected, confirmed=1 |
 | `applied` | Applied | applied=1 |
 | `company_rejected` | Rejected by company | company_rejected=1, applied=1 |
 | `interview` | Interview | interview_scheduled=1, interview_at=now, applied=1, clears company_rejected |

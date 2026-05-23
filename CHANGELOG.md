@@ -7,7 +7,8 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 ## v0.24 — UX label cleanup
 
 - **Status dropdown** — "Rejected (AI)" removed from the dropdown; it is set automatically by the AI and has no meaning as a manual selection
-- **Rejection labels renamed** — "Rejected (AI)" → "AI rejected", "Rejected (user)" → "User rejected" across all views: dropdown, badges, filter buttons, statistics legend, and the About page
+- **Rejection labels renamed** — "Rejected (AI)" → "AI rejected", "Rejected (user)" → "User rejected" across all views: badges, filter buttons, statistics legend, and the About page
+- **Dropdown action label** — manual rejection option in the status dropdown renamed to "Reject" (imperative verb, distinct from the badge label "User rejected")
 
 ---
 
