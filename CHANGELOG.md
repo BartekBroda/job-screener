@@ -9,6 +9,7 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 - **Status dropdown** — "Rejected (AI)" removed from the dropdown; it is set automatically by the AI and has no meaning as a manual selection
 - **Rejection labels renamed** — "Rejected (AI)" → "AI rejected", "Rejected (user)" → "User rejected" across all views: badges, filter buttons, statistics legend, and the About page
 - **Dropdown action label** — manual rejection option in the status dropdown renamed to "Reject" (imperative verb, distinct from the badge label "User rejected")
+- **Section order** — CV tailoring now appears before interview prep in the job detail view (tailor first, then prep)
 
 ---
 
