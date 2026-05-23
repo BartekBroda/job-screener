@@ -76,3 +76,89 @@ def test_cv_tailoring_analyzer_truncates_inputs():
     assert captured['payload']['max_tokens'] == 1500
     assert 'thinking' not in captured['payload']
     assert "##" in result
+
+
+def test_cv_tailoring_endpoint_requires_login(client, sample_job_id):
+    resp = client.post(f"/job/{sample_job_id}/cv_tailoring")
+    assert resp.status_code in (302, 401)
+
+
+def test_cv_tailoring_endpoint_404_for_wrong_user(logged_in_client, app):
+    resp = logged_in_client.post("/job/99999/cv_tailoring")
+    assert resp.status_code == 404
+
+
+def test_cv_tailoring_endpoint_400_for_ineligible_verdict(logged_in_client, app):
+    from database import get_conn, get_user
+    user = get_user("testuser")
+    with get_conn() as conn:
+        conn.execute(
+            """INSERT INTO jobs (user_id, company, role, verdict, verdict_confirmed,
+               analyzed_at, source_full)
+               VALUES (?, 'Corp', 'Role', 'rejected', 1, date('now'), 'some text')""",
+            (user["id"],),
+        )
+        job_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    resp = logged_in_client.post(f"/job/{job_id}/cv_tailoring")
+    assert resp.status_code == 400
+    assert b"not available" in resp.data.lower()
+
+
+def test_cv_tailoring_endpoint_400_when_no_source_text(logged_in_client, app):
+    from database import get_conn, get_user
+    user = get_user("testuser")
+    with get_conn() as conn:
+        conn.execute(
+            """INSERT INTO jobs (user_id, company, role, verdict, verdict_confirmed,
+               analyzed_at, source_full)
+               VALUES (?, 'Corp', 'Role', 'worth_considering', 1, date('now'), NULL)""",
+            (user["id"],),
+        )
+        job_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    resp = logged_in_client.post(f"/job/{job_id}/cv_tailoring")
+    assert resp.status_code == 400
+    assert b"no job description" in resp.data.lower()
+
+
+def test_cv_tailoring_endpoint_success(logged_in_client, app):
+    import unittest.mock as mock
+    from database import get_conn, get_user
+    user = get_user("testuser")
+    with get_conn() as conn:
+        conn.execute(
+            """INSERT INTO jobs (user_id, company, role, verdict, verdict_confirmed,
+               analyzed_at, source_full)
+               VALUES (?, 'Acme', 'PM', 'worth_considering', 1, date('now'), 'Full job description text here.')""",
+            (user["id"],),
+        )
+        job_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+    with mock.patch('app.cv_tailoring', return_value="## What to emphasise\n- Leadership.") as mock_tailor:
+        resp = logged_in_client.post(f"/job/{job_id}/cv_tailoring")
+
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["ok"] is True
+    assert "What to emphasise" in data["content"]
+    mock_tailor.assert_called_once()
+
+
+def test_cv_tailoring_stored_after_success(logged_in_client, app):
+    import unittest.mock as mock
+    from database import get_conn, get_user, get_cv_tailoring
+    user = get_user("testuser")
+    with get_conn() as conn:
+        conn.execute(
+            """INSERT INTO jobs (user_id, company, role, verdict, verdict_confirmed,
+               analyzed_at, source_full)
+               VALUES (?, 'Acme', 'PM', 'worth_considering', 1, date('now'), 'Full text.')""",
+            (user["id"],),
+        )
+        job_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+    with mock.patch('app.cv_tailoring', return_value="## What to emphasise\n- Stored."):
+        logged_in_client.post(f"/job/{job_id}/cv_tailoring")
+
+    stored = get_cv_tailoring(job_id, user["id"])
+    assert stored is not None
+    assert "Stored." in stored

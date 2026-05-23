@@ -24,8 +24,9 @@ from database import (
     update_company_rejected, update_job_status, update_job_notes, verify_password, get_statistics,
     create_analysis, update_analysis_status, get_analysis, count_active_analyses,
     save_interview_prep, get_interview_prep,
+    save_cv_tailoring, get_cv_tailoring,
 )
-from analyzer import analyze, interview_prep
+from analyzer import analyze, interview_prep, cv_tailoring
 from scraper import fetch as scrape_url, normalize_url
 
 app: Flask = Flask(__name__)
@@ -425,6 +426,41 @@ def generate_interview_prep(job_id):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/job/<int:job_id>/cv_tailoring", methods=["POST"])
+@limiter.limit("5 per hour")
+@login_required
+def generate_cv_tailoring(job_id):
+    user = current_user()
+    if not API_KEY:
+        return jsonify({"error": "No API key configured."}), 400
+    job = get_job(job_id, user["id"])
+    if not job:
+        return jsonify({"error": "Analysis not found."}), 404
+    eligible = (
+        job["verdict"] == "worth_considering"
+        or job["applied"]
+        or job["interview_scheduled"]
+        or job["offer_received"]
+    )
+    if not eligible:
+        return jsonify({"error": "CV tailoring not available for this job status."}), 400
+    source = (job["source_full"] or "").strip()
+    if not source or source.startswith("http"):
+        return jsonify({"error": "No job description text saved — cannot generate CV tailoring."}), 400
+    try:
+        content = cv_tailoring(
+            dict(user),
+            source,
+            job["company"] or "Unknown",
+            job["role"] or "Unknown",
+            API_KEY,
+        )
+        save_cv_tailoring(job_id, user["id"], content)
+        return jsonify({"ok": True, "content": content})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/job/<int:job_id>/verdict", methods=["POST"])
 @login_required
 def set_verdict(job_id):
@@ -583,7 +619,8 @@ def job_detail(job_id):
     except Exception:
         pass
     prep_content = get_interview_prep(job_id, user["id"])
-    return render_template("job_detail.html", user=user, job=job, raw=raw, prep_content=prep_content)
+    tailoring_content = get_cv_tailoring(job_id, user["id"])
+    return render_template("job_detail.html", user=user, job=job, raw=raw, prep_content=prep_content, tailoring_content=tailoring_content)
 
 
 @app.route("/job/<int:job_id>/partial")
@@ -599,7 +636,8 @@ def job_partial(job_id):
     except Exception:
         pass
     prep_content = get_interview_prep(job_id, user["id"])
-    return render_template("job_partial.html", job=job, raw=raw, prep_content=prep_content)
+    tailoring_content = get_cv_tailoring(job_id, user["id"])
+    return render_template("job_partial.html", job=job, raw=raw, prep_content=prep_content, tailoring_content=tailoring_content)
 
 
 @app.route("/settings", methods=["GET", "POST"])
