@@ -35,6 +35,8 @@ uv sync                    # recreate the environment (e.g. after cloning)
 `server.sh start` launches gunicorn with 2 workers, 180s worker timeout, as a daemon; logs in `/tmp/screener-access.log`
 and `/tmp/screener-error.log`. PID saved in `/tmp/screener.pid`. Timeout must exceed the 120s Anthropic API timeout.
 
+**Stale PID trap:** `server.sh restart` kills the PID in `/tmp/screener.pid`. If gunicorn was ever started outside `server.sh`, that PID won't match the real master — the kill silently misses and old workers keep serving new code never loads. Always use `server.sh` exclusively. If in doubt: `pkill -f "gunicorn.*app:app" && sleep 2 && bash server.sh start`.
+
 `uv.lock` is committed to Git — guarantees identical versions across all environments.
 `.venv/` is ignored by Git — uv creates it locally automatically.
 

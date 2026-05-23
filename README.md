@@ -98,6 +98,25 @@ uv run --env-file config.env python app.py  # development (no daemon, hot-reload
 
 Production logs: `/tmp/screener-access.log`, `/tmp/screener-error.log`
 
+### If restart doesn't pick up new code
+
+`server.sh restart` kills the PID stored in `/tmp/screener.pid`. If gunicorn was started outside of `server.sh` (manually or via a different script), the PID file won't match the actual master process — the kill silently hits the wrong target and old workers keep serving.
+
+Verify before restarting:
+
+```bash
+cat /tmp/screener.pid
+ps aux | grep gunicorn | grep -v grep | awk '{print $2}'
+```
+
+If the PIDs don't match, wipe all instances first:
+
+```bash
+pkill -f "gunicorn.*app:app" && sleep 2 && bash server.sh start
+```
+
+Always use `server.sh` exclusively — never start gunicorn manually.
+
 ---
 
 ## Deployment to a server
