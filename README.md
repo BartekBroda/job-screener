@@ -131,6 +131,7 @@ https://your.domain.com/register?token=YOUR_TOKEN
 | `ANTHROPIC_API_KEY` | Anthropic API key (required) |
 | `ANTHROPIC_MODEL` | Model ID (default: `claude-sonnet-4-6`); must support extended thinking |
 | `INTERVIEW_PREP_MODEL` | Model for interview prep (default: same as `ANTHROPIC_MODEL`). Use `claude-haiku-4-5-20251001` to reduce cost. |
+| `CV_TAILORING_MODEL` | Model for CV tailoring (default: `claude-haiku-4-5-20251001`). Use `claude-sonnet-4-6` for richer output. |
 | `SECRET_KEY` | Flask session key — **required**, app won't start without it. Generate: `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `INVITE_TOKEN` | Invitation token for new users |
 | `PORT` | Application port (default: `5001`) |
@@ -150,6 +151,7 @@ https://your.domain.com/register?token=YOUR_TOKEN
 - **Analysis history** — table with live search, sortable columns, visual category filtering, CSV export
 - **Statistics dashboard** — aggregated statistics: verdict distribution, application funnel, per-layer flag counts, fit score averages
 - **Mobile UX** — hamburger navigation at ≤768 px; card-based history list and full-screen detail modal at ≤480 px; 44 px touch targets
+- **CV tailoring** — targeted rewrite guidance for each job: what to emphasise, what to cut, bullet rewrites, and a suggested CV summary; generated on demand from the job detail view
 - **Analysis banner** — persistent progress banner shows `+N more` when multiple analyses are queued; done banner can be dismissed without opening the result
 - **Light/dark mode** — toggle in navigation, preference saved in the browser
 - **Multi-user** — each user has a separate profile, lists, and history; password change in Settings

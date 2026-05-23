@@ -4,6 +4,12 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.18 — CV tailoring
+
+- **CV tailoring** — new section in each job detail (same eligibility as interview prep: worth considering, applied, interview, offer). Generates targeted guidance: what to emphasise, what to cut, bullet rewrites, and a suggested CV summary. Uses `CV_TAILORING_MODEL` (default: `claude-haiku-4-5-20251001`). Stored per-job; regenerate any time.
+
+---
+
 ## v0.22 — Analysis banner improvements
 
 - **Queue indicator** — when multiple analyses are running or pending, the banner shows `+N more` so it is clear that more than one analysis is in flight; count comes from a live DB query on each poll

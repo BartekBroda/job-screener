@@ -135,6 +135,8 @@ update_job_url(job_id, user_id, url)
 update_job_notes(job_id, user_id, notes)     # freeform notes, max 10 000 chars
 save_interview_prep(job_id, user_id, content)  # stores markdown prep brief
 get_interview_prep(job_id, user_id)             # returns prep brief or None
+save_cv_tailoring(job_id, user_id, content)  # stores markdown tailoring guidance
+get_cv_tailoring(job_id, user_id)            # returns tailoring guidance or None
 update_password(user_id, new_password)       # hashes and stores new password
 delete_job(job_id, user_id)
 get_statistics(user_id)              # aggregated data for /statistics page
@@ -183,6 +185,7 @@ POST     /job/<id>/applied      — application status
 POST     /job/<id>/company_rejected — company rejection
 POST     /job/<id>/notes
 POST     /job/<id>/interview_prep — generate AI interview prep brief (5/hr rate limit)
+POST     /job/<id>/cv_tailoring     — generate AI CV tailoring guidance (5/hr rate limit)
 POST     /job/<id>/delete
 GET      /statistics
 GET      /settings
