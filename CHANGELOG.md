@@ -4,6 +4,15 @@ A tool for ethical evaluation of job listings. Every listing passes through six 
 
 ---
 
+## v0.25 — Cycling analysis banner
+
+- **Multi-analysis cycling** — when 2+ analyses are running simultaneously, the banner cycles through each source label every 2.5 s with a top-down slide animation (text slides up and out, next slides in from below)
+- **Queue counter** — a "X of Y" counter appears beside the label when cycling; hidden when only one analysis is active; counter and label now use the same visible colour as the source text
+- **Backend** — `analysis_status` now returns `active_labels` (ordered list of all pending/running source labels for the user) instead of a plain `queue_count`; new `get_active_analyses_labels()` DB function
+- **Test mode** — append `?banner_test=N` to any URL (N = 1–5) to preview the cycling banner with fake labels, without running a real analysis
+
+---
+
 ## v0.24 — UX label cleanup
 
 - **Status dropdown** — "Rejected (AI)" removed from the dropdown; it is set automatically by the AI and has no meaning as a manual selection

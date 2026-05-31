@@ -142,7 +142,8 @@ get_cv_tailoring(job_id, user_id)            # returns tailoring guidance or Non
 update_password(user_id, new_password)       # hashes and stores new password
 delete_job(job_id, user_id)
 get_statistics(user_id)              # aggregated data for /statistics page
-count_active_analyses(user_id)       # count of pending/running analyses for user (for banner queue indicator)
+count_active_analyses(user_id)       # count of pending/running analyses for user
+get_active_analyses_labels(user_id)  # ordered list of source_labels for pending/running analyses (for cycling banner)
 ```
 
 ---
@@ -175,7 +176,7 @@ GET      /dashboard
 POST     /analyze               — url + text (both optional, at least one required)
 POST     /check_source          — url or text, checks for duplicate
 POST     /reanalyze/<id>
-GET      /analysis_status/<id>    — background analysis status poll (pending/running/done/error); also returns `queue_count` (count of all active analyses for the user)
+GET      /analysis_status/<id>    — background analysis status poll (pending/running/done/error); also returns `active_labels` (ordered list of source labels for all pending/running analyses for the user)
 GET      /history_latest        — returns {id} of the most recent entry
 GET      /history
 GET      /job/<id>
@@ -510,7 +511,8 @@ instead of `filter: brightness()` — does not affect badge and dot colours.
 `.job-card-company` — company name inside card (font-weight 500, ellipsis overflow)
 `.job-card-role` — role title inside card (fs-sm, muted, ellipsis overflow)
 `.job-card-meta` — bottom row of card: date + status text; `data-status-text` on the status `<span>`
-`.analysis-banner-queue` — `+N more` indicator shown in the running banner when `queue_count > 1`; muted, xs font, slight opacity
+`.analysis-banner-queue` — `+N more` indicator (legacy, superseded by `.analysis-banner-counter`)
+`.analysis-banner-counter` — "X of Y" cycling position indicator; hidden when only one analysis active; matches source label colour
 `.analysis-banner-dismiss` — `×` dismiss button on the done banner; sits after `.analysis-banner-action`; clicking clears the banner without navigating
 
 ---

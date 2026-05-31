@@ -95,8 +95,19 @@ nav { border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex;
   display: inline-block;
 }
 .analysis-banner-icon { flex-shrink: 0; font-size: 14px; }
-.analysis-banner-label { color: var(--muted); }
-.analysis-banner-source { color: var(--dim); }
+.analysis-banner-label { color: var(--dim); }
+.analysis-banner-source { color: var(--dim); display: inline-block; }
+.analysis-banner-source.slide-out { animation: bannerSlideOut 0.18s ease forwards; }
+.analysis-banner-source.slide-in  { animation: bannerSlideIn  0.18s ease forwards; }
+@keyframes bannerSlideOut {
+  from { opacity: 1; transform: translateY(0);    }
+  to   { opacity: 0; transform: translateY(-7px); }
+}
+@keyframes bannerSlideIn {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.analysis-banner-counter { margin-left: 6px; color: var(--dim); font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; }
 .analysis-banner-badge {
   padding: 1px 6px;
   border-radius: 4px;

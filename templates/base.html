@@ -57,6 +57,9 @@
   var banner = document.getElementById('analysis-banner');
   if (!banner) return;
   var timer = null;
+  var cycleTimer = null;
+  var cycleLabels = [];
+  var cycleIndex = 0;
 
   function escHtml(s) {
     return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -68,25 +71,62 @@
          : v === 'rejected' ? 'rejected' : (v || '');
   }
 
-  function showRunning(src, queueCount) {
+  function updateCounter() {
+    var el = document.getElementById('ab-counter');
+    if (!el) return;
+    if (cycleLabels.length <= 1) {
+      el.style.display = 'none';
+    } else {
+      el.style.display = '';
+      el.textContent = (cycleIndex + 1) + ' of ' + cycleLabels.length;
+    }
+  }
+
+  function doSlide() {
+    if (cycleLabels.length <= 1) return;
+    var src = document.getElementById('ab-source');
+    if (!src) return;
+    src.classList.add('slide-out');
+    src.addEventListener('animationend', function onOut() {
+      src.removeEventListener('animationend', onOut);
+      cycleIndex = (cycleIndex + 1) % cycleLabels.length;
+      src.textContent = cycleLabels[cycleIndex];
+      src.classList.remove('slide-out');
+      src.classList.add('slide-in');
+      updateCounter();
+      src.addEventListener('animationend', function onIn() {
+        src.removeEventListener('animationend', onIn);
+        src.classList.remove('slide-in');
+      });
+    });
+  }
+
+  function showRunning(labels) {
     document.title = '⏳ Analyzing… — Job Screener';
-    banner.className = 'analysis-banner is-running is-visible';
-    document.documentElement.style.setProperty('--sticky-top', banner.offsetHeight + 'px');
-    banner.onclick = null;
-    var more = (queueCount > 1)
-      ? '<span class="analysis-banner-queue">+' + (queueCount - 1) + ' more</span>'
-      : '';
-    banner.innerHTML =
-      '<span class="analysis-banner-spinner"></span>' +
-      '<span class="analysis-banner-label">Analyzing — </span>' +
-      '<span class="analysis-banner-source">' + escHtml(src) + '</span>' +
-      more;
+    cycleLabels = labels.length ? labels : [''];
+    var wasRunning = banner.classList.contains('is-running');
+    if (!wasRunning) {
+      cycleIndex = 0;
+      banner.className = 'analysis-banner is-running is-visible';
+      document.documentElement.style.setProperty('--sticky-top', banner.offsetHeight + 'px');
+      banner.onclick = null;
+      banner.innerHTML =
+        '<span class="analysis-banner-spinner"></span>' +
+        '<span class="analysis-banner-label">Analyzing</span>' + '<span id="ab-counter" class="analysis-banner-counter"></span>' + '<span class="analysis-banner-label">—</span>' + '<span id="ab-source" class="analysis-banner-source">' + escHtml(cycleLabels[0]) + '</span>';
+      if (cycleTimer) clearInterval(cycleTimer);
+      cycleTimer = setInterval(doSlide, 2500);
+    }
+    updateCounter();
   }
 
   function dismissBanner() {
     document.title = 'Job Screener';
     localStorage.removeItem('activeAnalysis');
     if (timer) clearInterval(timer);
+    if (cycleTimer) clearInterval(cycleTimer);
+    cycleTimer = null;
+    cycleLabels = [];
+    cycleIndex = 0;
     banner.className = 'analysis-banner';
     banner.innerHTML = '';
     document.documentElement.style.setProperty('--sticky-top', '0px');
@@ -94,6 +134,7 @@
 
   function showDone(d) {
     document.title = '✓ Done — Job Screener';
+    if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
     banner.className = 'analysis-banner is-done is-visible';
     document.documentElement.style.setProperty('--sticky-top', banner.offsetHeight + 'px');
     var bc = 'analysis-banner-badge badge-' + (d.verdict || '');
@@ -123,6 +164,7 @@
   }
 
   function showError(msg) {
+    if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
     banner.className = 'analysis-banner is-error is-visible';
     document.documentElement.style.setProperty('--sticky-top', banner.offsetHeight + 'px');
     banner.onclick = null;
@@ -150,7 +192,8 @@
       .then(function (d) {
         if (!d) return;
         if (d.status === 'pending' || d.status === 'running') {
-          showRunning(d.source_label || src, d.queue_count || 1);
+          var labels = (d.active_labels && d.active_labels.length) ? d.active_labels : [d.source_label || src];
+          showRunning(labels);
         } else if (d.status === 'done') {
           if (timer) clearInterval(timer);
           showDone(d);
@@ -164,9 +207,17 @@
   }
 
   function startPolling(id, src) {
-    showRunning(src);
+    showRunning([src]);
     poll(id, src);
     timer = setInterval(function () { poll(id, src); }, POLL_MS);
+  }
+
+  var testCount = parseInt(new URLSearchParams(location.search).get('banner_test') || '0', 10);
+  if (testCount >= 1) {
+    var fakeLabels = [];
+    var fakeNames = ['Acme Corp · Senior Product Manager', 'Bigco · Staff Engineer', 'StartupXYZ · Head of Growth', 'MegaBank · Data Scientist', 'CoolSaaS · Frontend Developer'];
+    for (var i = 0; i < Math.min(testCount, 5); i++) fakeLabels.push(fakeNames[i]);
+    showRunning(fakeLabels);
   }
 
   var stored = localStorage.getItem('activeAnalysis');

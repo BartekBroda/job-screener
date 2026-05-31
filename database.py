@@ -415,6 +415,15 @@ def count_active_analyses(user_id: int) -> int:
         return row[0] if row else 0
 
 
+def get_active_analyses_labels(user_id: int) -> list:
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT source_label FROM analyses WHERE user_id=? AND status IN ('pending', 'running') ORDER BY created_at",
+            (user_id,),
+        ).fetchall()
+        return [r["source_label"] or "" for r in rows]
+
+
 def get_analysis(analysis_id: str, user_id: int) -> Optional[sqlite3.Row]:
     with get_conn() as conn:
         return conn.execute(
